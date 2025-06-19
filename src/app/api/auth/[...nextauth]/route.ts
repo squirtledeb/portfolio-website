@@ -2,8 +2,9 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/utils/mongodbAdapterClient";
+import { SessionStrategy } from "next-auth";
 
-export const authOptions = {
+const authOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
@@ -13,6 +14,7 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        if (!credentials) return null;
         const client = await clientPromise;
         const db = client.db();
         const user = await db.collection("users").findOne({ username: credentials.username });
@@ -24,7 +26,7 @@ export const authOptions = {
     }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as SessionStrategy,
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
