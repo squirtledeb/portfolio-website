@@ -7,6 +7,7 @@ import Providers from '@/components/Providers';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://oceantideco.onrender.com'),
   title: 'OceanTide Co. | Freelance Creative Services',
   description: 'Premium creative services by OceanTide Co. - Bringing your vision to life with oceanic inspiration.',
   keywords: 'freelance, creative services, web development, design, OceanTide',

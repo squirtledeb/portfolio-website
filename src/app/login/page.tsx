@@ -1,12 +1,13 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function LoginPage() {
+// A new component that uses the searchParams hook
+function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,6 +54,49 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+      <form className="w-full flex flex-col gap-6" onSubmit={handleSubmit}>
+        <div className="flex flex-col items-start w-full">
+          <label htmlFor="username" className="text-[var(--ocean-text-secondary)] mb-1 text-sm">Username</label>
+          <input
+            id="username"
+            type="text"
+            required
+            autoComplete="username"
+            className="w-full px-4 py-2 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-text)] border border-[var(--ocean-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--ocean-light)]"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-col items-start w-full">
+          <label htmlFor="password" className="text-[var(--ocean-text-secondary)] mb-1 text-sm">Password</label>
+          <input
+            id="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            className="w-full px-4 py-2 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-text)] border border-[var(--ocean-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--ocean-light)]"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          type="submit"
+          className="ocean-button w-full mt-2"
+          disabled={loading}
+        >
+          {loading ? "Signing in..." : "Sign In"}
+        </motion.button>
+      </form>
+      {message && <div className="mt-4 text-green-400 text-sm">{message}</div>}
+      {error && <div className="mt-4 text-red-400 text-sm">{error}</div>}
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
       {/* Animated Background (same as homepage) */}
       <div className="absolute inset-0 z-0">
@@ -68,42 +112,11 @@ export default function LoginPage() {
         <div className="text-5xl mb-4">🌊</div>
         <h1 className="text-3xl font-bold text-[var(--ocean-light)] mb-2">Welcome Back</h1>
         <p className="text-[var(--ocean-text-secondary)] mb-8">Sign in to your OceanTide account</p>
-        <form className="w-full flex flex-col gap-6" onSubmit={handleSubmit}>
-          <div className="flex flex-col items-start w-full">
-            <label htmlFor="username" className="text-[var(--ocean-text-secondary)] mb-1 text-sm">Username</label>
-            <input
-              id="username"
-              type="text"
-              required
-              autoComplete="username"
-              className="w-full px-4 py-2 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-text)] border border-[var(--ocean-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--ocean-light)]"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-col items-start w-full">
-            <label htmlFor="password" className="text-[var(--ocean-text-secondary)] mb-1 text-sm">Password</label>
-            <input
-              id="password"
-              type="password"
-              required
-              autoComplete="current-password"
-              className="w-full px-4 py-2 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-text)] border border-[var(--ocean-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--ocean-light)]"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-          </div>
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            type="submit"
-            className="ocean-button w-full mt-2"
-            disabled={loading}
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </motion.button>
-        </form>
-        {message && <div className="mt-4 text-green-400 text-sm">{message}</div>}
-        {error && <div className="mt-4 text-red-400 text-sm">{error}</div>}
+        
+        <Suspense fallback={<div>Loading...</div>}>
+          <LoginForm />
+        </Suspense>
+
         <div className="mt-6 text-xs text-[var(--ocean-text-secondary)] flex flex-col items-center">
           <span>
             First time client? <Link href="/signup" className="text-[var(--ocean-light)] underline">Sign up now</Link>
