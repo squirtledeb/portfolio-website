@@ -1,107 +1,201 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
-const reviews: Array<{
-  username: string;
-  avatar: string;
-  rating: number;
-  details: string;
-  role: string;
-}> = [];
+const placeholderReviews = [
+    {
+      author: "This spot is waiting for your review! 🌊",
+      title: "Maybe your review will be here soon!",
+      rating: 0,
+      content: "",
+      avatar: "/wave-logo.svg",
+    },
+    {
+      author: "Not enough clients yet, but the tide is rising... 🐚",
+      title: "Maybe your review will be here soon!",
+      rating: 0,
+      content: "",
+      avatar: "/wave-logo.svg",
+    },
+    {
+      author: "Your feedback could make waves here! 🐠",
+      title: "Maybe your review will be here soon!",
+      rating: 0,
+      content: "",
+      avatar: "/wave-logo.svg",
+    },
+    {
+      author: "Be the first to leave a splash! 🐙",
+      title: "Maybe your review will be here soon!",
+      rating: 0,
+      content: "",
+      avatar: "/wave-logo.svg",
+    },
+    {
+      author: "Future client stories will surface here! 🐬",
+      title: "Maybe your review will be here soon!",
+      rating: 0,
+      content: "",
+      avatar: "/wave-logo.svg",
+    },
+    {
+      author: "Maybe your review will be here soon!",
+      title: "",
+      rating: 0,
+      content: "",
+      avatar: "/wave-logo.svg",
+    },
+];
 
-const flipSoundUrl = "https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae4c3.mp3"; // Free flip sound
+const serviceTypes = [
+  { id: "web-design", name: "Web Design" },
+  { id: "web-development", name: "Web Development" },
+  { id: "ui-ux-design", name: "UI/UX Design" },
+  { id: "branding", name: "Branding" },
+  { id: "animation", name: "Animation" },
+  { id: "landing-page", name: "Landing Page Development" },
+  { id: "ecommerce-dev", name: "eCommerce Development" },
+  { id: "no-code-dev", name: "No-Code Development" },
+  { id: "maintenance", name: "Maintenance & Support" },
+  { id: "performance-opt", name: "Performance Optimization" },
+  { id: "logo-design", name: "Logo Design" },
+  { id: "social-media-design", name: "Social Media Design" },
+  { id: "print-design", name: "Print Design" },
+  { id: "copywriting", name: "Copywriting" },
+  { id: "content-strategy", name: "Content Strategy" },
+  { id: "seo-setup", name: "SEO Setup" },
+  { id: "discord-server", name: "Discord Server Setup" },
+  { id: "video-editing", name: "Video Editing" }
+];
 
-const ReviewCard = ({ review }: { review: typeof reviews[0] }) => {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <motion.div
-      className="relative w-full h-64 cursor-pointer perspective"
-      onMouseEnter={() => setFlipped(true)}
-      onMouseLeave={() => setFlipped(false)}
-      tabIndex={0}
-      onFocus={() => setFlipped(true)}
-      onBlur={() => setFlipped(false)}
-    >
-      <motion.div
-        className="absolute inset-0 w-full h-full [transform-style:preserve-3d] transition-transform duration-250 ease-in-out"
-        animate={{ rotateY: flipped ? 180 : 0 }}
-      >
-        {/* Front */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center bg-[var(--ocean-deep)] rounded-xl shadow-lg border border-[var(--ocean-light)]/10 backface-hidden px-6">
-          <div className="flex items-center gap-4 mb-2">
-            <img src={review.avatar} alt={review.username} className="w-16 h-16 rounded-full border-2 border-[var(--ocean-light)] shadow" />
-            <div className="flex flex-col items-start">
-              <div className="font-bold text-[var(--ocean-light)] text-lg">{review.username}</div>
-              <div className="text-xs text-[var(--ocean-text-secondary)]">{review.role}</div>
-              <div className="flex gap-1 mt-2">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className={i < review.rating ? "text-yellow-400" : "text-gray-500"}>★</span>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="text-[var(--ocean-text-secondary)] text-xs">Hover to read more</div>
-        </div>
-        {/* Back */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--ocean-surface)] rounded-xl shadow-lg border border-[var(--ocean-light)]/10 [transform:rotateY(180deg)] backface-hidden p-6">
-          <div className="text-[var(--ocean-light)] font-semibold mb-2">{review.username}</div>
-          <div className="text-[var(--ocean-text-secondary)] text-xs mb-4">{review.role}</div>
-          <div className="text-[var(--ocean-text)] italic">{review.details}</div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
+const getServiceName = (id: string) => {
+  const service = serviceTypes.find(s => s.id === id);
+  return service ? service.name : id;
 };
 
 export default function ReviewsPage() {
-  // Always show 6 cards (1 review + 5 empty)
-  const totalCards = 6;
-  const emptyCards = totalCards - reviews.length;
-  const quirkyMessages = [
-    "This spot is waiting for your review! 🌊",
-    "Not enough clients yet, but the tide is rising… 🐚",
-    "Your feedback could make waves here! 🐠",
-    "Be the first to leave a splash! 🦑",
-    "Future client stories will surface here! 🐬",
-  ];
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        const res = await fetch('/api/reviews');
+        const data = await res.json();
+        if (data.success) {
+          setReviews(data.reviews);
+        }
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchReviews();
+  }, []);
+
+  // Calculate how many real reviews
+  const realCount = reviews.length;
+  // Always show at least 3 placeholders in the next row after real reviews
+  let displayReviews: any[] = [];
+  if (realCount >= 3) {
+    displayReviews = [
+      ...reviews,
+      ...placeholderReviews.slice(0, 3)
+    ];
+  } else {
+    displayReviews = [
+      ...reviews,
+      ...placeholderReviews.slice(0, 6 - realCount)
+    ];
+  }
+
   return (
-    <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
-      {/* Animated Background (same as homepage) */}
+    <div className="min-h-screen flex flex-col items-center ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
-      <div className="relative z-10 max-w-5xl mx-auto flex-1">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] mb-4">Client Reviews</h1>
-          <p className="text-[var(--ocean-text-secondary)]">See what people are saying about OceanTide Co.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {reviews.map((review, idx) => (
-            <ReviewCard key={idx} review={review} />
-          ))}
-          {Array.from({ length: emptyCards }).map((_, idx) => (
+
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center z-10"
+      >
+        <h1 className="text-5xl md:text-6xl font-extrabold text-[var(--ocean-light)] drop-shadow-lg">
+          Client Reviews
+        </h1>
+        <p className="mt-2 text-lg text-[var(--ocean-text-secondary)]">
+          See what people are saying about OceanTide Co.
+        </p>
+      </motion.div>
+
+      <div className="mt-12 w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 z-10">
+        {displayReviews.map((review, index) => (
+          review.rating > 0 ? (
             <div
-              key={idx + reviews.length}
-              className="flex flex-col items-center justify-center h-64 bg-[var(--ocean-surface)] border-2 border-dashed border-[var(--ocean-light)]/30 rounded-xl text-center text-[var(--ocean-text-secondary)] px-6 shadow-inner"
+              key={index}
+              className="relative w-full h-72 cursor-pointer group perspective"
+              tabIndex={0}
             >
-              <div className="text-4xl mb-2">🌊</div>
-              <div className="font-semibold mb-1 min-h-[56px] flex flex-col justify-center items-center">
-                {quirkyMessages[idx]}
+              <div
+                className="absolute inset-0 w-full h-full [transform-style:preserve-3d] transition-transform duration-500 ease-in-out flip-inner"
+              >
+                {/* Front */}
+                <div className="absolute inset-0 flex flex-col justify-center items-center bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 backface-hidden p-6">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center mb-4">
+                      <div className="w-16 h-16 rounded-full bg-[var(--ocean-accent)] flex items-center justify-center text-3xl font-bold text-white ring-4 ring-[var(--ocean-accent)]/30">
+                        {review.username.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="flex items-center mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className={`w-5 h-5 ${i < review.rating ? "text-yellow-400" : "text-gray-500"}`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.965a1 1 0 00.95.69h4.17c.969 0 1.371 1.24.588 1.81l-3.372 2.448a1 1 0 00-.364 1.118l1.287 3.965c.3.921-.755 1.688-1.539 1.118l-3.372-2.448a1 1 0 00-1.176 0l-3.372 2.448c-.783.57-1.838-.197-1.539-1.118l1.287-3.965a1 1 0 00-.364-1.118L2.34 9.392c-.783-.57-.38-1.81.588-1.81h4.17a1 1 0 00.95-.69L9.049 2.927z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-lg font-semibold text-[var(--ocean-light)]">{review.username}</p>
+                    <p className="text-sm text-[var(--ocean-text-secondary)] italic">{getServiceName(review.serviceType)}</p>
+                  </div>
+                </div>
+                {/* Back */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 [transform:rotateY(180deg)] backface-hidden p-6">
+                  <p className="text-sm text-[var(--ocean-text-secondary)] italic mb-4">"{review.review}"</p>
+                  <p className="text-lg font-bold text-[var(--ocean-light)]">{review.title}</p>
+                </div>
               </div>
-              <div className="text-xs">Maybe your review will be here soon!</div>
             </div>
-          ))}
-        </div>
+          ) : (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="group relative w-full h-72 bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 p-6 flex flex-col items-center justify-center"
+              style={{ borderStyle: 'dashed' }}
+            >
+              <div className="flex flex-col items-center text-center w-full h-full justify-center">
+                <div className="w-16 h-16 rounded-full bg-[var(--ocean-light)]/20 flex items-center justify-center mb-4">
+                  <span className="text-3xl">🌊</span>
+                </div>
+                <div className="min-h-12 flex items-center justify-center w-full">
+                  <p className="text-xl font-bold text-[var(--ocean-light)] text-center w-full">{review.author}</p>
+                </div>
+                <p className="text-base text-[var(--ocean-text-secondary)] text-center w-full">{review.title}</p>
+              </div>
+            </motion.div>
+          )
+        ))}
       </div>
-      <footer className="w-full flex justify-center items-center mt-8 mb-2">
-        <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
-          © 2025 OceanTide Co. All rights reserved.
-        </span>
-      </footer>
     </div>
   );
 } 

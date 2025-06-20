@@ -5,15 +5,23 @@ import { ObjectId } from 'mongodb';
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
-    const update = await req.json();
-    if (!id || !update || typeof update !== 'object' || Array.isArray(update)) {
-      return NextResponse.json({ success: false, error: 'Missing id or update data' }, { status: 400 });
-    }
+    const body = await req.json();
+
+    // The fields we allow to be updated
+    const { status, progress, invoiceUrl, invoiceUrls, reviewed, review } = body;
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (progress !== undefined) updateData.progress = progress;
+    if (invoiceUrl) updateData.invoiceUrl = invoiceUrl;
+    if (invoiceUrls) updateData.invoiceUrls = invoiceUrls;
+    if (reviewed !== undefined) updateData.reviewed = reviewed;
+    if (review) updateData.review = review;
+
     const db = await getDb();
     const collection = db.collection('service_requests');
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: update }
+      { $set: updateData }
     );
     if (result.modifiedCount === 1) {
       return NextResponse.json({ success: true });

@@ -56,4 +56,12 @@
 }
 .perspective {
   perspective: 1000px;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.group:hover .flip-inner,
+.group:focus .flip-inner {
+  transform: rotateY(180deg);
 } 
