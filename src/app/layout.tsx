@@ -28,7 +28,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <Navigation />
-          <main className="min-h-screen">
+          <main className="min-h-screen pb-0">
             {children}
           </main>
         </Providers>

@@ -105,13 +105,13 @@ export default function DashboardPage() {
   const progressValue = typeof currentProject?.progress === 'number' ? currentProject.progress : 0;
 
   return (
-    <div className="min-h-screen ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
       {/* Animated Background (same as homepage) */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
-      <div className="relative z-10 max-w-5xl mx-auto space-y-12">
+      <div className="relative z-10 max-w-5xl mx-auto space-y-12 flex-1">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] text-center md:text-left drop-shadow-lg">
             Welcome, <span className="capitalize">{username}</span>!
@@ -308,6 +308,11 @@ export default function DashboardPage() {
           </div>
         </section>
       </div>
+      <footer className="w-full flex justify-center items-center mt-8 mb-2">
+        <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
+          © 2025 OceanTide Co. All rights reserved.
+        </span>
+      </footer>
     </div>
   );
 } 

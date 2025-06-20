@@ -51,7 +51,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden items-center justify-center">
       {/* Animated Background (same as homepage) */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
@@ -61,7 +61,7 @@ export default function SignupPage() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md bg-[var(--ocean-surface)] rounded-2xl shadow-2xl p-10 border border-[var(--ocean-light)]/10 flex flex-col items-center"
+        className="relative z-10 w-full max-w-md bg-[var(--ocean-surface)] rounded-2xl shadow-2xl p-10 border border-[var(--ocean-light)]/10 flex flex-col items-center mx-auto flex-1"
       >
         <div className="text-5xl mb-4">🐚</div>
         <h1 className="text-3xl font-bold text-[var(--ocean-light)] mb-2">Create Your Account</h1>
@@ -118,6 +118,11 @@ export default function SignupPage() {
           Already have an account? <a href="/login" className="text-[var(--ocean-light)] underline">Sign in</a>
         </div>
       </motion.div>
+      <footer className="w-full flex justify-center items-center mt-8 mb-2">
+        <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
+          © 2025 OceanTide Co. All rights reserved.
+        </span>
+      </footer>
     </div>
   );
 } 

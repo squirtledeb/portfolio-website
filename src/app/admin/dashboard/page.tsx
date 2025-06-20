@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { FaHourglassHalf, FaCheck } from "react-icons/fa";
+import { FaHourglassHalf, FaCheck, FaTimesCircle, FaCheckCircle } from "react-icons/fa";
 
 const serviceTypes = [
   { id: "web-design", name: "Web Design", description: "Custom website design with modern aesthetics" },
@@ -13,7 +13,12 @@ const serviceTypes = [
   { id: "animation", name: "Animation", description: "Motion graphics and interactive animations" },
 ];
 
-const statusOptions = ["Pending", "Accepted", "Declined"];
+const statusOptions = [
+  { label: "Pending", color: "bg-yellow-900 text-yellow-300", icon: <FaHourglassHalf /> },
+  { label: "Accepted", color: "bg-green-900 text-green-300", icon: <FaCheckCircle /> },
+  { label: "Declined", color: "bg-red-900 text-red-300", icon: <FaTimesCircle /> },
+  { label: "Completed", color: "bg-blue-900 text-blue-300", icon: <FaCheck /> },
+];
 
 export default function AdminDashboardPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -83,13 +88,13 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
       {/* Animated Background (same as homepage) */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
-      <div className="relative z-10 max-w-6xl mx-auto">
+      <div className="relative z-10 max-w-6xl mx-auto flex-1">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] text-center md:text-left">
             Owner Dashboard
@@ -102,39 +107,222 @@ export default function AdminDashboardPage() {
             Refresh Requests
           </motion.button>
         </div>
-        <div className="mb-10">
-          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">All Service Requests</h2>
-          <div className="bg-[var(--ocean-surface)] rounded-xl shadow-lg p-6 border border-[var(--ocean-light)]/10">
-            {loading ? (
-              <div className="text-[var(--ocean-text-secondary)] italic">Loading...</div>
-            ) : error ? (
-              <div className="text-red-400 italic">{error}</div>
-            ) : requests.length === 0 ? (
-              <div className="text-[var(--ocean-text-secondary)] italic">No service requests yet.</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {requests.map((req) => (
-                  <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl border border-[var(--ocean-light)]/10 flex flex-col p-0 overflow-hidden">
-                    {/* Header */}
-                    <div className="flex items-center justify-between px-6 pt-6 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
-              <div>
-                        <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
-                        <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
-                      </div>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gap-1 shadow-sm ${req.status === 'Pending' ? 'bg-yellow-900 text-yellow-300' : req.status === 'Accepted' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}> <FaHourglassHalf /> {req.status} </span>
+        {/* Pending Projects */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">Pending Projects</h2>
+          {requests.filter(r => r.status === 'Pending').length === 0 ? (
+            <div className="text-[var(--ocean-text-secondary)] italic">No pending projects.</div>
+          ) : (
+            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Pending').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+              {requests.filter(r => r.status === 'Pending').map((req) => (
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
+                    <div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
                     </div>
-
-                    {/* Service Type */}
-                    <div className="px-6 pt-3 pb-1">
-                      <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
-                        <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
-                        {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
-                      </div>
+                    {/* Status Chips */}
+                    <div className="flex gap-2 items-center my-1">
+                      {statusOptions.map(opt => (
+                        <button
+                          key={opt.label}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gap-1 shadow-sm border transition-all duration-150
+                            ${req.status === opt.label ? `${opt.color} border-white/40 scale-105` : "bg-[var(--ocean-surface)] text-[var(--ocean-text-secondary)] border-[var(--ocean-light)]/10 hover:scale-105 hover:border-white/30"}
+                          `}
+                          style={{ outline: req.status === opt.label ? "2px solid #64FFDA" : "none" }}
+                          onClick={async () => {
+                            if (req.status !== opt.label) {
+                              if (opt.label === 'Completed') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Completed', progress: 100 }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Completed');
+                                }
+                                setUpdatingId(null);
+                              } else if (opt.label === 'Declined') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Declined', progress: null }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Declined');
+                                }
+                                setUpdatingId(null);
+                              } else {
+                                await updateStatus(req._id, opt.label);
+                                fetchRequests();
+                              }
+                            }
+                          }}
+                          disabled={updatingId === req._id}
+                          title={opt.label}
+                        >
+                          {opt.icon} {opt.label}
+                        </button>
+                      ))}
                     </div>
+                  </div>
 
-                    {/* Meta Info Row */}
-                    <div className="px-6 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
-                      <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
+                  {/* Service Type */}
+                  <div className="px-2 md:px-4 pt-3 pb-1">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
+                      {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
+                    </div>
+                  </div>
+
+                  {/* Meta Info Row */}
+                  <div className="px-2 md:px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
+                    <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
+                  </div>
+
+                  {/* Reference Links */}
+                  {req.referenceLinks && req.referenceLinks.length > 0 && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
+                        Reference Links
+                      </div>
+                      <ul className="space-y-1">
+                        {req.referenceLinks.map((link: string, idx: number) => (
+                          <li key={idx}>
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
+                            >
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
+                              {link}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Actions Row */}
+                  <div className="px-2 md:px-4 py-4 flex flex-wrap gap-3 items-center justify-end bg-[var(--ocean-surface)]">
+                    {/* Pending: Remove only */}
+                    {req.status === 'Pending' && (
+                      <button
+                        className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                            try {
+                              const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                              const data = await res.json();
+                              if (data.success) {
+                                fetchRequests();
+                                alert('✅ Service request removed successfully!');
+                              } else {
+                                alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
+                              }
+                            } catch (error) {
+                              alert('Failed to remove service request: ' + error);
+                            }
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Accepted Projects */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">Accepted Projects</h2>
+          {requests.filter(r => r.status === 'Accepted').length === 0 ? (
+            <div className="text-[var(--ocean-text-secondary)] italic">No accepted projects.</div>
+          ) : (
+            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Accepted').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+              {requests.filter(r => r.status === 'Accepted').map((req) => (
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
+                    <div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+                    </div>
+                    {/* Status Chips */}
+                    <div className="flex gap-2 items-center my-1">
+                      {statusOptions.map(opt => (
+                        <button
+                          key={opt.label}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gap-1 shadow-sm border transition-all duration-150
+                            ${req.status === opt.label ? `${opt.color} border-white/40 scale-105` : "bg-[var(--ocean-surface)] text-[var(--ocean-text-secondary)] border-[var(--ocean-light)]/10 hover:scale-105 hover:border-white/30"}
+                          `}
+                          style={{ outline: req.status === opt.label ? "2px solid #64FFDA" : "none" }}
+                          onClick={async () => {
+                            if (req.status !== opt.label) {
+                              if (opt.label === 'Completed') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Completed', progress: 100 }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Completed');
+                                }
+                                setUpdatingId(null);
+                              } else if (opt.label === 'Declined') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Declined', progress: null }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Declined');
+                                }
+                                setUpdatingId(null);
+                              } else {
+                                await updateStatus(req._id, opt.label);
+                                fetchRequests();
+                              }
+                            }
+                          }}
+                          disabled={updatingId === req._id}
+                          title={opt.label}
+                        >
+                          {opt.icon} {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Service Type */}
+                  <div className="px-2 md:px-4 pt-3 pb-1">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
+                      {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
+                    </div>
+                  </div>
+
+                  {/* Meta Info Row */}
+                  <div className="px-2 md:px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
+                    <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
+                    {req.status === 'Accepted' && (
                       <div className="flex items-center gap-2 mt-1 md:mt-0">
                         <span>Progress:</span>
                         <div className="flex items-center gap-1">
@@ -186,188 +374,141 @@ export default function AdminDashboardPage() {
                           </button>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Reference Links */}
-                    {req.referenceLinks && req.referenceLinks.length > 0 && (
-                      <div className="px-6 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
-                        <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
-                          <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
-                          Reference Links
-                        </div>
-                        <ul className="space-y-1">
-                          {req.referenceLinks.map((link: string, idx: number) => (
-                            <li key={idx}>
-                              <a
-                                href={link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
-                              >
-                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
-                                {link}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
                     )}
+                  </div>
 
-                    {/* Actions Row */}
-                    <div className="px-6 py-4 flex flex-wrap gap-3 items-center justify-end bg-[var(--ocean-surface)]">
-                      {/* Pending: Accept/Decline/Remove */}
-                      {req.status === 'Pending' && (
-                        <>
-                          <button
-                            className="ocean-button bg-green-700 hover:bg-green-600 text-white px-4 py-1 rounded"
-                            disabled={updatingId === req._id}
-                            onClick={() => updateStatus(req._id, 'Accepted')}
-                          >
-                            Accept
-                          </button>
-                          <button
-                            className="ocean-button bg-red-700 hover:bg-red-600 text-white px-4 py-1 rounded"
-                            disabled={updatingId === req._id}
-                            onClick={() => updateStatus(req._id, 'Declined')}
-                          >
-                            Decline
-                          </button>
-                          <button
-                            className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
-                            onClick={async () => {
-                              if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
-                                try {
-                                  const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
-                                  const data = await res.json();
-                                  if (data.success) {
-                                    fetchRequests();
-                                    alert('✅ Service request removed successfully!');
-                                  } else {
-                                    alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
-                                  }
-                                } catch (error) {
-                                  alert('Failed to remove service request: ' + error);
-                                }
-                              }
-                            }}
-                          >
-                            Remove
-                          </button>
-                        </>
-                      )}
-                      {/* Accepted: Invoice actions and Remove */}
-                      {req.status === 'Accepted' && (
-                        <>
-                          {!req.invoiceUrl && (
-                            <>
-                                <button
-                                className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded"
-                                  onClick={() => {
-                                    setInvoiceForm({
-                                      email: req.email || '',
-                                      projectName: req.projectName || '',
-                                      description: req.description || '',
-                                      amount: '',
-                                    });
-                                    setModal({ open: true, reqId: req._id });
-                                  }}
-                                >
-                                  Create & Send Invoice
-                                </button>
-                              <button
-                                className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
-                                onClick={() => {
-                                  setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: '' });
-                                }}
-                              >
-                                Add Manual Invoice URL
-                              </button>
-                            </>
-                          )}
-                          {req.invoiceUrl && (
-                            <>
+                  {/* Reference Links */}
+                  {req.referenceLinks && req.referenceLinks.length > 0 && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
+                        Reference Links
+                      </div>
+                      <ul className="space-y-1">
+                        {req.referenceLinks.map((link: string, idx: number) => (
+                          <li key={idx}>
                             <a
-                              href={req.invoiceUrl}
+                              href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                                className="ocean-button bg-blue-900 hover:bg-blue-800 text-white px-4 py-1 rounded underline"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
                             >
-                              View Invoice
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
+                              {link}
                             </a>
-                              <button
-                                className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded"
-                                onClick={() => {
-                                  setInvoiceForm({
-                                    email: req.email || '',
-                                    projectName: req.projectName || '',
-                                    description: req.description || '',
-                                    amount: '',
-                                  });
-                                  setModal({ open: true, reqId: req._id });
-                                }}
-                              >
-                                Send Another Invoice
-                              </button>
-                              <button
-                                className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
-                                onClick={() => {
-                                  setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: req.invoiceUrl || '' });
-                                }}
-                              >
-                                Update Invoice URL
-                              </button>
-                              <button
-                                className="ocean-button bg-red-700 hover:bg-red-600 text-white px-4 py-1 rounded"
-                                onClick={async () => {
-                                  if (confirm('Are you sure you want to remove this invoice? The client will no longer see the "Pay Now" button.')) {
-                                    try {
-                                      const res = await fetch(`/api/service-requests/${req._id}`, {
-                                        method: 'PATCH',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({ invoiceUrl: null }),
-                                      });
-                                      const data = await res.json();
-                                      if (data.success) {
-                                        fetchRequests();
-                                        alert('✅ Invoice removed successfully!');
-                                      } else {
-                                        alert('Failed to remove invoice: ' + (data.error || 'Unknown error'));
-                                      }
-                                    } catch (error) {
-                                      alert('Failed to remove invoice: ' + error);
-                                    }
-                                  }
-                                }}
-                              >
-                                Remove Invoice
-                              </button>
-                            </>
-                          )}
-                          <button
-                            className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
-                            onClick={async () => {
-                              if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
-                                try {
-                                  const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
-                                  const data = await res.json();
-                                  if (data.success) {
-                                    fetchRequests();
-                                    alert('✅ Service request removed successfully!');
-                                  } else {
-                                    alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
-                                  }
-                                } catch (error) {
-                                  alert('Failed to remove service request: ' + error);
-                                }
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Actions Row */}
+                  <div className="px-2 md:px-4 py-4 flex flex-wrap gap-3 items-center justify-end bg-[var(--ocean-surface)]">
+                    {/* Pending: Remove only */}
+                    {req.status === 'Pending' && (
+                      <button
+                        className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                            try {
+                              const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                              const data = await res.json();
+                              if (data.success) {
+                                fetchRequests();
+                                alert('✅ Service request removed successfully!');
+                              } else {
+                                alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
                               }
-                            }}
+                            } catch (error) {
+                              alert('Failed to remove service request: ' + error);
+                            }
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                    {/* Accepted: Invoice actions and Remove */}
+                    {req.status === 'Accepted' && (
+                      <>
+                        {!req.invoiceUrl && (
+                          <>
+                              <button
+                              className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded opacity-60 cursor-not-allowed"
+                                disabled
+                                onClick={() => {}}
+                              >
+                                Create & Send Invoice
+                              </button>
+                            <button
+                              className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
+                              onClick={() => {
+                                setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: '' });
+                              }}
+                            >
+                              Add Manual Invoice URL
+                            </button>
+                          </>
+                        )}
+                        {req.invoiceUrl && (
+                          <>
+                          <a
+                            href={req.invoiceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                              className="ocean-button bg-blue-900 hover:bg-blue-800 text-white px-4 py-1 rounded underline"
                           >
-                            Remove
-                          </button>
-                        </>
-                      )}
-                      {/* Declined: Remove only */}
-                      {req.status === 'Declined' && (
+                            View Invoice
+                          </a>
+                            <button
+                              className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded"
+                              onClick={() => {
+                                setInvoiceForm({
+                                  email: req.email || '',
+                                  projectName: req.projectName || '',
+                                  description: req.description || '',
+                                  amount: '',
+                                });
+                                setModal({ open: true, reqId: req._id });
+                              }}
+                            >
+                              Send Another Invoice
+                            </button>
+                            <button
+                              className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
+                              onClick={() => {
+                                setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: req.invoiceUrl || '' });
+                              }}
+                            >
+                              Update Invoice URL
+                            </button>
+                            <button
+                              className="ocean-button bg-red-700 hover:bg-red-600 text-white px-4 py-1 rounded"
+                              onClick={async () => {
+                                if (confirm('Are you sure you want to remove this invoice? The client will no longer see the "Pay Now" button.')) {
+                                  try {
+                                    const res = await fetch(`/api/service-requests/${req._id}`, {
+                                      method: 'PATCH',
+                                      headers: { 'Content-Type': 'application/json' },
+                                      body: JSON.stringify({ invoiceUrl: null }),
+                                    });
+                                    const data = await res.json();
+                                    if (data.success) {
+                                      fetchRequests();
+                                      alert('✅ Invoice removed successfully!');
+                                    } else {
+                                      alert('Failed to remove invoice: ' + (data.error || 'Unknown error'));
+                                    }
+                                  } catch (error) {
+                                    alert('Failed to remove invoice: ' + error);
+                                  }
+                                }
+                              }}
+                            >
+                              Remove Invoice
+                            </button>
+                          </>
+                        )}
                         <button
                           className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
                           onClick={async () => {
@@ -389,15 +530,327 @@ export default function AdminDashboardPage() {
                         >
                           Remove
                         </button>
-                      )}
+                      </>
+                    )}
+                    {/* Declined: Remove only */}
+                    {req.status === 'Declined' && (
+                      <button
+                        className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                            try {
+                              const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                              const data = await res.json();
+                              if (data.success) {
+                                fetchRequests();
+                                alert('✅ Service request removed successfully!');
+                              } else {
+                                alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
+                              }
+                            } catch (error) {
+                              alert('Failed to remove service request: ' + error);
+                            }
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Declined Projects */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">Declined Projects</h2>
+          {requests.filter(r => r.status === 'Declined').length === 0 ? (
+            <div className="text-[var(--ocean-text-secondary)] italic">No declined projects.</div>
+          ) : (
+            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Declined').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+              {requests.filter(r => r.status === 'Declined').map((req) => (
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
+                    <div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+                    </div>
+                    {/* Status Chips */}
+                    <div className="flex gap-2 items-center my-1">
+                      {statusOptions.map(opt => (
+                        <button
+                          key={opt.label}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gap-1 shadow-sm border transition-all duration-150
+                            ${req.status === opt.label ? `${opt.color} border-white/40 scale-105` : "bg-[var(--ocean-surface)] text-[var(--ocean-text-secondary)] border-[var(--ocean-light)]/10 hover:scale-105 hover:border-white/30"}
+                          `}
+                          style={{ outline: req.status === opt.label ? "2px solid #64FFDA" : "none" }}
+                          onClick={async () => {
+                            if (req.status !== opt.label) {
+                              if (opt.label === 'Completed') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Completed', progress: 100 }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Completed');
+                                }
+                                setUpdatingId(null);
+                              } else if (opt.label === 'Declined') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Declined', progress: null }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Declined');
+                                }
+                                setUpdatingId(null);
+                              } else {
+                                await updateStatus(req._id, opt.label);
+                                fetchRequests();
+                              }
+                            }
+                          }}
+                          disabled={updatingId === req._id}
+                          title={opt.label}
+                        >
+                          {opt.icon} {opt.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+
+                  {/* Service Type */}
+                  <div className="px-2 md:px-4 pt-3 pb-1">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
+                      {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
+                    </div>
+                  </div>
+
+                  {/* Meta Info Row */}
+                  <div className="px-2 md:px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
+                    <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
+                  </div>
+
+                  {/* Reference Links */}
+                  {req.referenceLinks && req.referenceLinks.length > 0 && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
+                        Reference Links
+                      </div>
+                      <ul className="space-y-1">
+                        {req.referenceLinks.map((link: string, idx: number) => (
+                          <li key={idx}>
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
+                            >
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
+                              {link}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Actions Row */}
+                  <div className="px-2 md:px-4 py-4 flex flex-wrap gap-3 items-center justify-end bg-[var(--ocean-surface)]">
+                    {/* Remove only */}
+                    <button
+                      className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                      onClick={async () => {
+                        if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                          try {
+                            const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                            const data = await res.json();
+                            if (data.success) {
+                              fetchRequests();
+                              alert('✅ Service request removed successfully!');
+                            } else {
+                              alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
+                            }
+                          } catch (error) {
+                            alert('Failed to remove service request: ' + error);
+                          }
+                        }
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Completed Projects */}
+        <div className="mb-16">
+          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">Completed Projects</h2>
+          {requests.filter(r => r.status === 'Completed').length === 0 ? (
+            <div className="text-[var(--ocean-text-secondary)] italic">No completed projects.</div>
+          ) : (
+            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Completed').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+              {requests.filter(r => r.status === 'Completed').map((req) => (
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
+                    <div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+                    </div>
+                    {/* Status Chips */}
+                    <div className="flex gap-2 items-center my-1">
+                      {statusOptions.map(opt => (
+                        <button
+                          key={opt.label}
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gap-1 shadow-sm border transition-all duration-150
+                            ${req.status === opt.label ? `${opt.color} border-white/40 scale-105` : "bg-[var(--ocean-surface)] text-[var(--ocean-text-secondary)] border-[var(--ocean-light)]/10 hover:scale-105 hover:border-white/30"}
+                          `}
+                          style={{ outline: req.status === opt.label ? "2px solid #64FFDA" : "none" }}
+                          onClick={async () => {
+                            if (req.status !== opt.label) {
+                              if (opt.label === 'Completed') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Completed', progress: 100 }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Completed');
+                                }
+                                setUpdatingId(null);
+                              } else if (opt.label === 'Declined') {
+                                setUpdatingId(req._id);
+                                try {
+                                  await fetch(`/api/service-requests/${req._id}`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ status: 'Declined', progress: null }),
+                                  });
+                                  fetchRequests();
+                                } catch (err) {
+                                  alert('Failed to update status to Declined');
+                                }
+                                setUpdatingId(null);
+                              } else {
+                                await updateStatus(req._id, opt.label);
+                                fetchRequests();
+                              }
+                            }
+                          }}
+                          disabled={updatingId === req._id}
+                          title={opt.label}
+                        >
+                          {opt.icon} {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Service Type */}
+                  <div className="px-2 md:px-4 pt-3 pb-1">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
+                      {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
+                    </div>
+                  </div>
+
+                  {/* Meta Info Row */}
+                  <div className="px-2 md:px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
+                    <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
+                    {req.status === 'Completed' && (
+                      <div className="flex items-center gap-2 mt-1 md:mt-0">
+                        <span>Progress:</span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-28 h-2 bg-[var(--ocean-deep)] rounded-full overflow-hidden">
+                            <div className="h-2 rounded-full bg-[var(--ocean-accent)] transition-all" style={{ width: '100%' }}></div>
+                          </div>
+                          <span className="ml-2 text-[var(--ocean-light)] font-bold">100%</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reference Links */}
+                  {req.referenceLinks && req.referenceLinks.length > 0 && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                        <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
+                        Reference Links
+                      </div>
+                      <ul className="space-y-1">
+                        {req.referenceLinks.map((link: string, idx: number) => (
+                          <li key={idx}>
+                            <a
+                              href={link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
+                            >
+                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
+                              {link}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Actions Row */}
+                  <div className="px-2 md:px-4 py-4 flex flex-wrap gap-3 items-center justify-end bg-[var(--ocean-surface)]">
+                    {/* Pending: Remove only */}
+                    {req.status === 'Pending' && (
+                      <button
+                        className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                            try {
+                              const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                              const data = await res.json();
+                              if (data.success) {
+                                fetchRequests();
+                                alert('✅ Service request removed successfully!');
+                              } else {
+                                alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
+                              }
+                            } catch (error) {
+                              alert('Failed to remove service request: ' + error);
+                            }
+                          }
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+      <footer className="w-full flex justify-center items-center mt-8 mb-2">
+        <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
+          © 2025 OceanTide Co. All rights reserved.
+        </span>
+      </footer>
 
       {/* Modal for invoice confirmation and editing */}
       {modal.open && (

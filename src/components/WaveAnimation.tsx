@@ -70,6 +70,11 @@ const WaveAnimation = () => {
           d={generateWavePath({ amplitude: 32, frequency: 2.5, phase: 0, width: 1440, height: 320, yOffset: 180, points: 60, sharpness: 1.7 })}
         />
       </svg>
+      <div className="w-full flex justify-center items-center absolute bottom-0 left-0 pb-4 pointer-events-auto select-auto">
+        <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
+          © 2025 OceanTide Co. All rights reserved.
+        </span>
+      </div>
     </div>
   );
 };
