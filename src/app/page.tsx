@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import WaveAnimation from '@/components/WaveAnimation';
+import Link from 'next/link';
 
 export default function Home() {
   const heroRef = useRef(null);
@@ -70,14 +71,18 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <button className="ocean-button mr-4">
-              View Projects
-            </button>
-            <button className="px-6 py-3 rounded-lg border-2 border-[var(--ocean-light)] text-[var(--ocean-light)] 
+            <Link href="/portfolio">
+              <button className="ocean-button mr-4">
+                View Projects
+              </button>
+            </Link>
+            <Link href="/contact">
+              <button className="px-6 py-3 rounded-lg border-2 border-[var(--ocean-light)] text-[var(--ocean-light)] 
                              font-semibold transition-all duration-300 hover:bg-[var(--ocean-light)] 
                              hover:text-[var(--ocean-deep)]">
-              Contact Me
-            </button>
+                Contact Me
+              </button>
+            </Link>
           </motion.div>
         </div>
 
