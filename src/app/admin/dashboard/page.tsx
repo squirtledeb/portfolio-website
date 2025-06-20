@@ -112,18 +112,18 @@ export default function AdminDashboardPage() {
           <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">Pending Projects</h2>
           {requests.filter(r => r.status === 'Pending').length === 0 ? (
             <div className="text-[var(--ocean-text-secondary)] italic">No pending projects.</div>
-          ) : (
-            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Pending').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+            ) : (
+            <div className="flex flex-wrap gap-6">
               {requests.filter(r => r.status === 'Pending').map((req) => (
-                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
-                  {/* Header */}
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden min-w-fit w-fit">
+                    {/* Header */}
                   <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
-                    <div>
-                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+              <div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight whitespace-nowrap">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium whitespace-nowrap">by {req.username}</div>
                     </div>
                     {/* Status Chips */}
-                    <div className="flex gap-2 items-center my-1">
+                    <div className="flex flex-nowrap gap-2 items-center my-1">
                       {statusOptions.map(opt => (
                         <button
                           key={opt.label}
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
 
                   {/* Service Type */}
                   <div className="px-2 md:px-4 pt-3 pb-1">
-                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2 whitespace-nowrap">
                       <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
                       {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
                     </div>
@@ -187,10 +187,25 @@ export default function AdminDashboardPage() {
                     <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
                   </div>
 
+                  {/* Description, Timeline, and Budget */}
+                  {(req.description || req.timeline || req.budget) && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80 text-[var(--ocean-text-secondary)] text-sm space-y-1">
+                      {req.description && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Description:</span> {req.description}</div>
+                      )}
+                      {req.timeline && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Timeline:</span> {req.timeline}</div>
+                      )}
+                      {req.budget && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Budget:</span> {req.budget}</div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Reference Links */}
                   {req.referenceLinks && req.referenceLinks.length > 0 && (
                     <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1 whitespace-nowrap">
                         <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
                         Reference Links
                       </div>
@@ -201,7 +216,7 @@ export default function AdminDashboardPage() {
                               href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1 whitespace-nowrap"
                             >
                               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
                               {link}
@@ -250,17 +265,17 @@ export default function AdminDashboardPage() {
           {requests.filter(r => r.status === 'Accepted').length === 0 ? (
             <div className="text-[var(--ocean-text-secondary)] italic">No accepted projects.</div>
           ) : (
-            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Accepted').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+            <div className="flex flex-wrap gap-6">
               {requests.filter(r => r.status === 'Accepted').map((req) => (
-                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden min-w-fit w-fit">
                   {/* Header */}
                   <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
                     <div>
-                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight whitespace-nowrap">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium whitespace-nowrap">by {req.username}</div>
                     </div>
                     {/* Status Chips */}
-                    <div className="flex gap-2 items-center my-1">
+                    <div className="flex flex-nowrap gap-2 items-center my-1">
                       {statusOptions.map(opt => (
                         <button
                           key={opt.label}
@@ -309,19 +324,19 @@ export default function AdminDashboardPage() {
                         </button>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Service Type */}
-                  <div className="px-2 md:px-4 pt-3 pb-1">
-                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
-                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
-                      {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
                     </div>
-                  </div>
 
-                  {/* Meta Info Row */}
+                    {/* Service Type */}
+                  <div className="px-2 md:px-4 pt-3 pb-1">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2 whitespace-nowrap">
+                        <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
+                        {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
+                      </div>
+                    </div>
+
+                    {/* Meta Info Row */}
                   <div className="px-2 md:px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
-                    <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
+                      <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
                     {req.status === 'Accepted' && (
                       <div className="flex items-center gap-2 mt-1 md:mt-0">
                         <span>Progress:</span>
@@ -375,140 +390,180 @@ export default function AdminDashboardPage() {
                         </div>
                       </div>
                     )}
-                  </div>
-
-                  {/* Reference Links */}
-                  {req.referenceLinks && req.referenceLinks.length > 0 && (
-                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
-                        <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
-                        Reference Links
-                      </div>
-                      <ul className="space-y-1">
-                        {req.referenceLinks.map((link: string, idx: number) => (
-                          <li key={idx}>
-                            <a
-                              href={link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
-                            >
-                              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
-                              {link}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
                     </div>
-                  )}
 
-                  {/* Actions Row */}
+                    {/* Description, Timeline, and Budget */}
+                    {(req.description || req.timeline || req.budget) && (
+                      <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80 text-[var(--ocean-text-secondary)] text-sm space-y-1">
+                        {req.description && (
+                          <div><span className="font-semibold text-[var(--ocean-light)]">Description:</span> {req.description}</div>
+                        )}
+                        {req.timeline && (
+                          <div><span className="font-semibold text-[var(--ocean-light)]">Timeline:</span> {req.timeline}</div>
+                        )}
+                        {req.budget && (
+                          <div><span className="font-semibold text-[var(--ocean-light)]">Budget:</span> {req.budget}</div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Reference Links */}
+                    {req.referenceLinks && req.referenceLinks.length > 0 && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1 whitespace-nowrap">
+                          <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
+                          Reference Links
+                        </div>
+                        <ul className="space-y-1">
+                          {req.referenceLinks.map((link: string, idx: number) => (
+                            <li key={idx}>
+                              <a
+                                href={link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1 whitespace-nowrap"
+                              >
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
+                                {link}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Actions Row */}
                   <div className="px-2 md:px-4 py-4 flex flex-wrap gap-3 items-center justify-end bg-[var(--ocean-surface)]">
                     {/* Pending: Remove only */}
-                    {req.status === 'Pending' && (
-                      <button
-                        className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
-                        onClick={async () => {
-                          if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
-                            try {
-                              const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
-                              const data = await res.json();
-                              if (data.success) {
-                                fetchRequests();
-                                alert('✅ Service request removed successfully!');
-                              } else {
-                                alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
-                              }
-                            } catch (error) {
-                              alert('Failed to remove service request: ' + error);
-                            }
-                          }
-                        }}
-                      >
-                        Remove
-                      </button>
-                    )}
-                    {/* Accepted: Invoice actions and Remove */}
-                    {req.status === 'Accepted' && (
-                      <>
-                        {!req.invoiceUrl && (
-                          <>
-                              <button
-                              className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded opacity-60 cursor-not-allowed"
-                                disabled
-                                onClick={() => {}}
-                              >
-                                Create & Send Invoice
-                              </button>
-                            <button
-                              className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
-                              onClick={() => {
-                                setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: '' });
-                              }}
-                            >
-                              Add Manual Invoice URL
-                            </button>
-                          </>
-                        )}
-                        {req.invoiceUrl && (
-                          <>
-                          <a
-                            href={req.invoiceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                              className="ocean-button bg-blue-900 hover:bg-blue-800 text-white px-4 py-1 rounded underline"
-                          >
-                            View Invoice
-                          </a>
-                            <button
-                              className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded"
-                              onClick={() => {
-                                setInvoiceForm({
-                                  email: req.email || '',
-                                  projectName: req.projectName || '',
-                                  description: req.description || '',
-                                  amount: '',
-                                });
-                                setModal({ open: true, reqId: req._id });
-                              }}
-                            >
-                              Send Another Invoice
-                            </button>
-                            <button
-                              className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
-                              onClick={() => {
-                                setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: req.invoiceUrl || '' });
-                              }}
-                            >
-                              Update Invoice URL
-                            </button>
-                            <button
-                              className="ocean-button bg-red-700 hover:bg-red-600 text-white px-4 py-1 rounded"
-                              onClick={async () => {
-                                if (confirm('Are you sure you want to remove this invoice? The client will no longer see the "Pay Now" button.')) {
-                                  try {
-                                    const res = await fetch(`/api/service-requests/${req._id}`, {
-                                      method: 'PATCH',
-                                      headers: { 'Content-Type': 'application/json' },
-                                      body: JSON.stringify({ invoiceUrl: null }),
-                                    });
-                                    const data = await res.json();
-                                    if (data.success) {
-                                      fetchRequests();
-                                      alert('✅ Invoice removed successfully!');
-                                    } else {
-                                      alert('Failed to remove invoice: ' + (data.error || 'Unknown error'));
-                                    }
-                                  } catch (error) {
-                                    alert('Failed to remove invoice: ' + error);
+                      {req.status === 'Pending' && (
+                          <button
+                            className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                            onClick={async () => {
+                              if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                                try {
+                                  const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    fetchRequests();
+                                    alert('✅ Service request removed successfully!');
+                                  } else {
+                                    alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
                                   }
+                                } catch (error) {
+                                  alert('Failed to remove service request: ' + error);
                                 }
-                              }}
+                              }
+                            }}
+                          >
+                            Remove
+                          </button>
+                      )}
+                      {/* Accepted: Invoice actions and Remove */}
+                      {req.status === 'Accepted' && (
+                        <>
+                          {!req.invoiceUrl && (
+                            <>
+                                <button
+                              className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded opacity-60 cursor-not-allowed"
+                              disabled
+                              onClick={() => {}}
+                                >
+                                  Create & Send Invoice
+                                </button>
+                              <button
+                                className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
+                                onClick={() => {
+                                  setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: '' });
+                                }}
+                              >
+                                Add Manual Invoice URL
+                              </button>
+                            </>
+                          )}
+                          {req.invoiceUrl && (
+                            <>
+                            <a
+                              href={req.invoiceUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                                className="ocean-button bg-blue-900 hover:bg-blue-800 text-white px-4 py-1 rounded underline"
                             >
-                              Remove Invoice
-                            </button>
-                          </>
-                        )}
+                              View Invoice
+                            </a>
+                              <button
+                                className="ocean-button bg-blue-700 hover:bg-blue-600 text-white px-4 py-1 rounded"
+                                onClick={() => {
+                                  setInvoiceForm({
+                                    email: req.email || '',
+                                    projectName: req.projectName || '',
+                                    description: req.description || '',
+                                    amount: '',
+                                  });
+                                  setModal({ open: true, reqId: req._id });
+                                }}
+                              >
+                                Send Another Invoice
+                              </button>
+                              <button
+                                className="ocean-button bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1 rounded"
+                                onClick={() => {
+                                  setManualInvoiceModal({ open: true, reqId: req._id, invoiceUrl: req.invoiceUrl || '' });
+                                }}
+                              >
+                                Update Invoice URL
+                              </button>
+                              <button
+                                className="ocean-button bg-red-700 hover:bg-red-600 text-white px-4 py-1 rounded"
+                                onClick={async () => {
+                                  if (confirm('Are you sure you want to remove this invoice? The client will no longer see the "Pay Now" button.')) {
+                                    try {
+                                      const res = await fetch(`/api/service-requests/${req._id}`, {
+                                        method: 'PATCH',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ invoiceUrl: null }),
+                                      });
+                                      const data = await res.json();
+                                      if (data.success) {
+                                        fetchRequests();
+                                        alert('✅ Invoice removed successfully!');
+                                      } else {
+                                        alert('Failed to remove invoice: ' + (data.error || 'Unknown error'));
+                                      }
+                                    } catch (error) {
+                                      alert('Failed to remove invoice: ' + error);
+                                    }
+                                  }
+                                }}
+                              >
+                                Remove Invoice
+                              </button>
+                            </>
+                          )}
+                          <button
+                            className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
+                            onClick={async () => {
+                              if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
+                                try {
+                                  const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
+                                  const data = await res.json();
+                                  if (data.success) {
+                                    fetchRequests();
+                                    alert('✅ Service request removed successfully!');
+                                  } else {
+                                    alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
+                                  }
+                                } catch (error) {
+                                  alert('Failed to remove service request: ' + error);
+                                }
+                              }
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </>
+                      )}
+                      {/* Declined: Remove only */}
+                      {req.status === 'Declined' && (
                         <button
                           className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
                           onClick={async () => {
@@ -530,55 +585,30 @@ export default function AdminDashboardPage() {
                         >
                           Remove
                         </button>
-                      </>
-                    )}
-                    {/* Declined: Remove only */}
-                    {req.status === 'Declined' && (
-                      <button
-                        className="ocean-button bg-gray-700 hover:bg-gray-600 text-white px-4 py-1 rounded"
-                        onClick={async () => {
-                          if (confirm('Are you sure you want to permanently remove this service request? This cannot be undone.')) {
-                            try {
-                              const res = await fetch(`/api/service-requests/${req._id}`, { method: 'DELETE' });
-                              const data = await res.json();
-                              if (data.success) {
-                                fetchRequests();
-                                alert('✅ Service request removed successfully!');
-                              } else {
-                                alert('Failed to remove service request: ' + (data.error || 'Unknown error'));
-                              }
-                            } catch (error) {
-                              alert('Failed to remove service request: ' + error);
-                            }
-                          }
-                        }}
-                      >
-                        Remove
-                      </button>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
         {/* Declined Projects */}
         <div className="mb-16">
           <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4">Declined Projects</h2>
           {requests.filter(r => r.status === 'Declined').length === 0 ? (
             <div className="text-[var(--ocean-text-secondary)] italic">No declined projects.</div>
           ) : (
-            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Declined').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+            <div className="flex flex-wrap gap-6">
               {requests.filter(r => r.status === 'Declined').map((req) => (
-                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden min-w-fit w-fit">
                   {/* Header */}
                   <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
                     <div>
-                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight whitespace-nowrap">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium whitespace-nowrap">by {req.username}</div>
                     </div>
                     {/* Status Chips */}
-                    <div className="flex gap-2 items-center my-1">
+                    <div className="flex flex-nowrap gap-2 items-center my-1">
                       {statusOptions.map(opt => (
                         <button
                           key={opt.label}
@@ -631,7 +661,7 @@ export default function AdminDashboardPage() {
 
                   {/* Service Type */}
                   <div className="px-2 md:px-4 pt-3 pb-1">
-                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2 whitespace-nowrap">
                       <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
                       {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
                     </div>
@@ -642,10 +672,25 @@ export default function AdminDashboardPage() {
                     <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
                   </div>
 
+                  {/* Description, Timeline, and Budget */}
+                  {(req.description || req.timeline || req.budget) && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80 text-[var(--ocean-text-secondary)] text-sm space-y-1">
+                      {req.description && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Description:</span> {req.description}</div>
+                      )}
+                      {req.timeline && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Timeline:</span> {req.timeline}</div>
+                      )}
+                      {req.budget && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Budget:</span> {req.budget}</div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Reference Links */}
                   {req.referenceLinks && req.referenceLinks.length > 0 && (
                     <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1 whitespace-nowrap">
                         <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
                         Reference Links
                       </div>
@@ -656,7 +701,7 @@ export default function AdminDashboardPage() {
                               href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1 whitespace-nowrap"
                             >
                               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
                               {link}
@@ -703,17 +748,17 @@ export default function AdminDashboardPage() {
           {requests.filter(r => r.status === 'Completed').length === 0 ? (
             <div className="text-[var(--ocean-text-secondary)] italic">No completed projects.</div>
           ) : (
-            <div className={`grid gap-6 ${requests.filter(r => r.status === 'Completed').length === 1 ? 'grid-cols-1 justify-center' : 'grid-cols-1 md:grid-cols-2'}`}>
+            <div className="flex flex-wrap gap-6">
               {requests.filter(r => r.status === 'Completed').map((req) => (
-                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden w-full">
+                <div key={req._id} className="bg-[var(--ocean-surface)] rounded-2xl shadow-xl flex flex-col p-4 md:p-6 overflow-hidden min-w-fit w-fit">
                   {/* Header */}
                   <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-4 pb-2 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]">
                     <div>
-                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight">{req.projectName}</div>
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium">by {req.username}</div>
+                      <div className="text-2xl font-extrabold text-[var(--ocean-accent)] leading-tight whitespace-nowrap">{req.projectName}</div>
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-medium whitespace-nowrap">by {req.username}</div>
                     </div>
                     {/* Status Chips */}
-                    <div className="flex gap-2 items-center my-1">
+                    <div className="flex flex-nowrap gap-2 items-center my-1">
                       {statusOptions.map(opt => (
                         <button
                           key={opt.label}
@@ -766,7 +811,7 @@ export default function AdminDashboardPage() {
 
                   {/* Service Type */}
                   <div className="px-2 md:px-4 pt-3 pb-1">
-                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2">
+                    <div className="text-base font-bold text-[var(--ocean-light)] flex items-center gap-2 whitespace-nowrap">
                       <span className="inline-block w-2 h-2 rounded-full bg-[var(--ocean-accent)]"></span>
                       {serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}
                     </div>
@@ -775,23 +820,27 @@ export default function AdminDashboardPage() {
                   {/* Meta Info Row */}
                   <div className="px-2 md:px-4 py-2 flex flex-col md:flex-row md:items-center md:gap-6 gap-1 text-xs text-[var(--ocean-text-secondary)] border-b border-[var(--ocean-light)]/10">
                     <div>Requested: <span className="font-semibold">{new Date(req.created_at).toLocaleString()}</span></div>
-                    {req.status === 'Completed' && (
-                      <div className="flex items-center gap-2 mt-1 md:mt-0">
-                        <span>Progress:</span>
-                        <div className="flex items-center gap-1">
-                          <div className="w-28 h-2 bg-[var(--ocean-deep)] rounded-full overflow-hidden">
-                            <div className="h-2 rounded-full bg-[var(--ocean-accent)] transition-all" style={{ width: '100%' }}></div>
-                          </div>
-                          <span className="ml-2 text-[var(--ocean-light)] font-bold">100%</span>
-                        </div>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Description, Timeline, and Budget */}
+                  {(req.description || req.timeline || req.budget) && (
+                    <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80 text-[var(--ocean-text-secondary)] text-sm space-y-1">
+                      {req.description && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Description:</span> {req.description}</div>
+                      )}
+                      {req.timeline && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Timeline:</span> {req.timeline}</div>
+                      )}
+                      {req.budget && (
+                        <div><span className="font-semibold text-[var(--ocean-light)]">Budget:</span> {req.budget}</div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Reference Links */}
                   {req.referenceLinks && req.referenceLinks.length > 0 && (
                     <div className="px-2 md:px-4 py-3 border-b border-[var(--ocean-light)]/10 bg-[var(--ocean-surface)]/80">
-                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1">
+                      <div className="text-xs text-[var(--ocean-text-secondary)] font-semibold mb-1 flex items-center gap-1 whitespace-nowrap">
                         <svg className="w-4 h-4 text-[var(--ocean-accent)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 010 5.656m-3.656-3.656a4 4 0 015.656 0m-7.778 7.778a6 6 0 018.486 0m-10.607-2.121a8 8 0 0111.314 0" /></svg>
                         Reference Links
                       </div>
@@ -802,7 +851,7 @@ export default function AdminDashboardPage() {
                               href={link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1"
+                              className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs flex items-center gap-1 whitespace-nowrap"
                             >
                               <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7m-7 0v-7" /></svg>
                               {link}

@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
     if (data.success) {
       setStep("success");
       setMessage("Your password has been reset. You can now log in.");
-      setTimeout(() => router.push("/login"), 2000);
+      setTimeout(() => router.push(`/login?username=${encodeURIComponent(username)}`), 2000);
     } else {
       setError(data.error || "Failed to reset password.");
     }

@@ -6,9 +6,22 @@ import { useRouter } from "next/navigation";
 const serviceTypes = [
   { id: "web-design", name: "Web Design", description: "Custom website design with modern aesthetics" },
   { id: "web-development", name: "Web Development", description: "Full-stack web application development" },
-  { id: "ui-design", name: "UI/UX Design", description: "User interface and experience design" },
+  { id: "ui-ux-design", name: "UI/UX Design", description: "User interface and experience design" },
   { id: "branding", name: "Branding", description: "Complete brand identity and strategy" },
   { id: "animation", name: "Animation", description: "Motion graphics and interactive animations" },
+  { id: "landing-page", name: "Landing Page Development", description: "High-converting, responsive landing pages" },
+  { id: "ecommerce", name: "eCommerce Development", description: "Online store setup and custom functionality" },
+  { id: "no-code", name: "No-Code Development", description: "Webflow, Wix, Framer, or Shopify builds" },
+  { id: "maintenance", name: "Maintenance & Support", description: "Ongoing updates, bug fixes, and security" },
+  { id: "performance", name: "Performance Optimization", description: "Speed, SEO, and responsive improvements" },
+  { id: "logo-design", name: "Logo Design", description: "Custom logos tailored to your brand's identity" },
+  { id: "social-media", name: "Social Media Design", description: "Branded posts, stories, banners, and ads" },
+  { id: "print-design", name: "Print Design", description: "Posters, business cards, brochures, and flyers" },
+  { id: "copywriting", name: "Copywriting", description: "Website copy, product descriptions, and taglines" },
+  { id: "content-strategy", name: "Content Strategy", description: "Structuring content for clarity and conversion" },
+  { id: "seo-setup", name: "SEO Setup", description: "Basic search engine optimization setup" },
+  { id: "discord-server", name: "Discord Server Setup", description: "Custom bots, roles, channels, and automations" },
+  { id: "video-editing", name: "Video Editing", description: "Short-form content, reels, or promotional videos" },
 ];
 
 export default function RequestServicePage() {
@@ -69,17 +82,17 @@ export default function RequestServicePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center ocean-gradient px-4 relative overflow-hidden">
       {/* Animated Background (same as homepage) */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
-      <div className="relative z-10 flex-1">
+      <div className="relative z-10 flex-1 flex items-center justify-center w-full">
         <form
           onSubmit={handleSubmit}
-          className="relative flex flex-col h-full w-full max-w-xl bg-[rgba(17,34,64,0.92)] backdrop-blur-xl border border-[var(--ocean-light)]/30 shadow-2xl rounded-3xl px-6 py-4"
-          style={{ maxHeight: '90vh', overflow: 'hidden' }}
+          className="relative flex flex-col w-full max-w-xl bg-[rgba(17,34,64,0.92)] backdrop-blur-xl border border-[var(--ocean-light)]/30 shadow-2xl rounded-3xl px-6 py-4"
+          style={{ maxHeight: 'calc(100vh - 80px)', overflow: 'visible' }}
         >
           <div className="overflow-y-auto flex-1 px-0 pt-0 pb-2" style={{ maxHeight: '70vh' }}>
           {error && <div className="text-red-400 text-center mb-2">{error}</div>}
@@ -293,7 +306,7 @@ export default function RequestServicePage() {
           </div>
         </form>
       </div>
-      <footer className="w-full flex justify-center items-center mt-8 mb-2">
+      <footer className="w-full flex justify-center items-center mt-0 mb-2 z-20 sticky bottom-0">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
           © 2025 OceanTide Co. All rights reserved.
         </span>

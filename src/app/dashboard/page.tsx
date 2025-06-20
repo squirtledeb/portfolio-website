@@ -267,46 +267,6 @@ export default function DashboardPage() {
             )}
           </div>
         </section>
-        {/* Payments (Optional/Placeholder) */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4 flex items-center gap-2">
-            <FaMoneyCheckAlt className="inline text-[var(--ocean-accent)]" /> Recent Payments
-          </h2>
-          <div className="bg-[var(--ocean-surface)] rounded-2xl shadow-lg p-6 border border-[var(--ocean-light)]/10">
-            {requests.filter((req: any) => req.paid).length ? (
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[var(--ocean-text-secondary)]">
-                    <th className="text-center pb-2">Project</th>
-                    <th className="text-center pb-2">Service</th>
-                    <th className="text-center pb-2">Amount</th>
-                    <th className="text-center pb-2">Paid On</th>
-                    <th className="text-center pb-2">Invoice</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requests.filter((req: any) => req.paid).sort((a: any, b: any) => new Date(b.paidAt).getTime() - new Date(a.paidAt).getTime()).map((req: any, i: number) => (
-                    <tr key={req._id || i} className="border-t border-[var(--ocean-light)]/10 hover:bg-[var(--ocean-deep)]/40 transition">
-                      <td className="text-center py-2 font-medium">{req.projectName}</td>
-                      <td className="text-center py-2">{serviceTypes.find(s => s.id === req.serviceType)?.name || req.serviceType}</td>
-                      <td className="text-center py-2">{req.paymentDetails?.amount?.value ? `$${req.paymentDetails.amount.value}` : (req.paymentDetails?.amount || req.amount || '-')}</td>
-                      <td className="text-center py-2 text-xs">{req.paidAt ? new Date(req.paidAt).toLocaleString() : '-'}</td>
-                      <td className="text-center py-2">
-                        {req.invoiceUrl ? (
-                          <a href={req.invoiceUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--ocean-accent)] underline hover:text-[var(--ocean-light)] text-xs">View Invoice</a>
-                        ) : (
-                          <span className="text-[var(--ocean-text-secondary)] text-xs">-</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="text-[var(--ocean-text-secondary)] italic">No payments yet. Paid invoices will appear here.</div>
-            )}
-          </div>
-        </section>
       </div>
       <footer className="w-full flex justify-center items-center mt-8 mb-2">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">

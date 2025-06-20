@@ -3,15 +3,13 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 
-const reviews = [
-  {
-    username: "Alex M.",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    rating: 5,
-    details: "Absolutely stunning work! The oceanic theme brought my brand to life. Highly recommended for creative projects.",
-    role: "Startup Founder",
-  },
-];
+const reviews: Array<{
+  username: string;
+  avatar: string;
+  rating: number;
+  details: string;
+  role: string;
+}> = [];
 
 const flipSoundUrl = "https://cdn.pixabay.com/audio/2022/07/26/audio_124bfae4c3.mp3"; // Free flip sound
 
