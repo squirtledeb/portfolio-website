@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const placeholderReviews = [
     {
@@ -74,9 +75,27 @@ const getServiceName = (id: string) => {
   return service ? service.name : id;
 };
 
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+  center: {
+    zIndex: 1,
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    zIndex: 0,
+    x: direction < 0 ? '100%' : '-100%',
+    opacity: 0,
+  }),
+};
+
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [[page, direction], setPage] = useState([0, 0]);
 
   useEffect(() => {
     async function fetchReviews() {
@@ -95,35 +114,46 @@ export default function ReviewsPage() {
     fetchReviews();
   }, []);
 
-  // Calculate how many real reviews
+  const reviewsPerPage = 3;
   const realCount = reviews.length;
-  // Always show at least 3 placeholders in the next row after real reviews
-  let displayReviews: any[] = [];
-  if (realCount >= 3) {
-    displayReviews = [
-      ...reviews,
-      ...placeholderReviews.slice(0, 3)
-    ];
-  } else {
-    displayReviews = [
-      ...reviews,
-      ...placeholderReviews.slice(0, 6 - realCount)
-    ];
+  let displayReviews = [...reviews];
+
+  // Only add placeholders once we know the real review count
+  if (!loading) {
+    const remainder = realCount % reviewsPerPage;
+    if (remainder !== 0 || realCount === 0) {
+      const placeholdersNeeded = realCount === 0 ? reviewsPerPage : reviewsPerPage - remainder;
+      for (let i = 0; i < placeholdersNeeded; i++) {
+        displayReviews.push(placeholderReviews[i % placeholderReviews.length]);
+      }
+    }
   }
 
+  const pageCount = Math.ceil(displayReviews.length / reviewsPerPage) || 1;
+  const canNavigate = pageCount > 1;
+
+  const paginate = (newDirection: number) => {
+    if (canNavigate) {
+      setPage([page + newDirection, newDirection]);
+    }
+  };
+
+  const currentPage = (page % pageCount + pageCount) % pageCount;
+  const currentReviews = displayReviews.slice(currentPage * reviewsPerPage, currentPage * reviewsPerPage + reviewsPerPage);
+
   return (
-    <div className="min-h-screen flex flex-col items-center ocean-gradient pt-24 pb-8 px-4 relative overflow-hidden">
-      <div className="flex-grow w-full">
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
-      </div>
+    <div className="h-screen flex flex-col items-center justify-center ocean-gradient p-4 relative overflow-hidden">
+      <div className="w-full max-w-6xl mx-auto flex flex-col items-center">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center z-10"
+          className="text-center z-10 relative mb-8"
         >
           <h1 className="text-5xl md:text-6xl font-extrabold text-[var(--ocean-light)] drop-shadow-lg">
             Client Reviews
@@ -132,75 +162,96 @@ export default function ReviewsPage() {
             See what people are saying about OceanTide Co.
           </p>
         </motion.div>
+        
+        <div className="relative w-full flex items-center justify-center" style={{ height: '320px' }}>
+          {canNavigate && (
+            <button onClick={() => paginate(-1)} className="absolute -left-4 md:-left-12 z-20 bg-[var(--ocean-surface)]/50 rounded-full p-2 hover:bg-[var(--ocean-light)]/20 transition-colors">
+              <FiChevronLeft className="text-white text-2xl" />
+            </button>
+          )}
 
-        <div className="mt-12 w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 z-10">
-          {displayReviews.map((review, index) => (
-            review.rating > 0 ? (
-              <div
-                key={index}
-                className="relative w-full h-72 cursor-pointer group perspective"
-                tabIndex={0}
-              >
-                <div
-                  className="absolute inset-0 w-full h-full [transform-style:preserve-3d] transition-transform duration-500 ease-in-out flip-inner"
-                >
-                  {/* Front */}
-                  <div className="absolute inset-0 flex flex-col justify-center items-center bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 backface-hidden p-6">
-                    <div className="flex flex-col items-center text-center">
-                      <div className="flex items-center justify-center mb-4">
-                        <div className="w-16 h-16 rounded-full bg-[var(--ocean-accent)] flex items-center justify-center text-3xl font-bold text-white ring-4 ring-[var(--ocean-accent)]/30">
-                          {review.username.charAt(0).toUpperCase()}
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={page}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: 'spring', stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 },
+              }}
+              className="absolute w-full grid grid-cols-1 md:grid-cols-3 gap-8"
+            >
+              {currentReviews.map((review, index) => (
+                review.rating > 0 ? (
+                  <div
+                    key={index}
+                    className="relative w-full h-72 cursor-pointer group perspective group-hover:z-10"
+                    tabIndex={0}
+                  >
+                    <div className="absolute inset-0 w-full h-full [transform-style:preserve-3d] transition-transform duration-500 ease-in-out flip-inner">
+                      {/* Front */}
+                      <div className="absolute inset-0 flex flex-col justify-center items-center bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 backface-hidden p-6">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="flex items-center justify-center mb-4">
+                            <div className="w-16 h-16 rounded-full bg-[var(--ocean-accent)] flex items-center justify-center text-3xl font-bold text-white ring-4 ring-[var(--ocean-accent)]/30">
+                              {review.username.charAt(0).toUpperCase()}
+                            </div>
+                          </div>
+                          <div className="flex items-center mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <svg key={i} className={`w-5 h-5 ${i < review.rating ? "text-yellow-400" : "text-gray-500"}`} fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.965a1 1 0 00.95.69h4.17c.969 0 1.371 1.24.588 1.81l-3.372 2.448a1 1 0 00-.364 1.118l1.287 3.965c.3.921-.755 1.688-1.539 1.118l-3.372-2.448a1 1 0 00-1.176 0l-3.372 2.448c-.783.57-1.838-.197-1.539-1.118l1.287-3.965a1 1 0 00-.364-1.118L2.34 9.392c-.783-.57-.38-1.81.588-1.81h4.17a1 1 0 00.95-.69L9.049 2.927z" />
+                              </svg>
+                            ))}
+                          </div>
+                          <p className="mt-2 text-lg font-semibold text-[var(--ocean-light)]">{review.username}</p>
+                          <p className="text-sm text-[var(--ocean-text-secondary)] italic">{getServiceName(review.serviceType)}</p>
                         </div>
-        </div>
-                      <div className="flex items-center mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <svg
-                            key={i}
-                            className={`w-5 h-5 ${i < review.rating ? "text-yellow-400" : "text-gray-500"}`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.965a1 1 0 00.95.69h4.17c.969 0 1.371 1.24.588 1.81l-3.372 2.448a1 1 0 00-.364 1.118l1.287 3.965c.3.921-.755 1.688-1.539 1.118l-3.372-2.448a1 1 0 00-1.176 0l-3.372 2.448c-.783.57-1.838-.197-1.539-1.118l1.287-3.965a1 1 0 00-.364-1.118L2.34 9.392c-.783-.57-.38-1.81.588-1.81h4.17a1 1 0 00.95-.69L9.049 2.927z" />
-                          </svg>
-                        ))}
                       </div>
-                      <p className="mt-2 text-lg font-semibold text-[var(--ocean-light)]">{review.username}</p>
-                      <p className="text-sm text-[var(--ocean-text-secondary)] italic">{getServiceName(review.serviceType)}</p>
+                      {/* Back */}
+                      <div className="absolute inset-0 flex flex-col bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 [transform:rotateY(180deg)] backface-hidden p-6">
+                        <div className="flex-grow overflow-y-auto pr-2">
+                          <p className="text-sm text-left text-[var(--ocean-text-secondary)] italic break-words">"{review.review}"</p>
+                        </div>
+                        <p className="flex-shrink-0 text-lg text-center font-bold text-[var(--ocean-light)] mt-auto pt-4">{review.title}</p>
+                      </div>
                     </div>
                   </div>
-                  {/* Back */}
-                  <div className="absolute inset-0 flex flex-col bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 [transform:rotateY(180deg)] backface-hidden p-6">
-                    <div className="flex-grow overflow-y-auto pr-2">
-                      <p className="text-sm text-left text-[var(--ocean-text-secondary)] italic break-words">"{review.review}"</p>
+                ) : (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="group relative w-full h-72 bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 p-6 flex flex-col items-center justify-center"
+                    style={{ borderStyle: 'dashed' }}
+                  >
+                    <div className="flex flex-col items-center text-center w-full h-full justify-center">
+                      <div className="w-16 h-16 rounded-full bg-[var(--ocean-light)]/20 flex items-center justify-center mb-4">
+                        <span className="text-3xl">🌊</span>
+                      </div>
+                      <div className="min-h-12 flex items-center justify-center w-full">
+                        <p className="text-xl font-bold text-[var(--ocean-light)] text-center w-full">{review.author}</p>
+                      </div>
+                      <p className="text-base text-[var(--ocean-text-secondary)] text-center w-full">{review.title}</p>
                     </div>
-                    <p className="flex-shrink-0 text-lg text-center font-bold text-[var(--ocean-light)] mt-auto pt-4">{review.title}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative w-full h-72 bg-[var(--ocean-surface)] rounded-2xl shadow-lg border border-[var(--ocean-light)]/20 p-6 flex flex-col items-center justify-center"
-                style={{ borderStyle: 'dashed' }}
-              >
-                <div className="flex flex-col items-center text-center w-full h-full justify-center">
-                  <div className="w-16 h-16 rounded-full bg-[var(--ocean-light)]/20 flex items-center justify-center mb-4">
-                    <span className="text-3xl">🌊</span>
-                  </div>
-                  <div className="min-h-12 flex items-center justify-center w-full">
-                    <p className="text-xl font-bold text-[var(--ocean-light)] text-center w-full">{review.author}</p>
-                  </div>
-                  <p className="text-base text-[var(--ocean-text-secondary)] text-center w-full">{review.title}</p>
-            </div>
-              </motion.div>
-            )
-          ))}
+                  </motion.div>
+                )
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          {canNavigate && (
+            <button onClick={() => paginate(1)} className="absolute -right-4 md:-right-12 z-20 bg-[var(--ocean-surface)]/50 rounded-full p-2 hover:bg-[var(--ocean-light)]/20 transition-colors">
+              <FiChevronRight className="text-white text-2xl" />
+            </button>
+          )}
         </div>
       </div>
-      <footer className="w-full flex justify-center items-center mt-auto pt-4 pb-4">
+      <footer className="w-full flex justify-center items-center absolute bottom-4">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
           © 2025 OceanTide Co. All rights reserved.
         </span>
