@@ -432,7 +432,7 @@ export default function DashboardPage() {
                             ))}
                           </div>
                           <div className="font-bold text-[var(--ocean-light)] text-base mb-1">{proj.review.title}</div>
-                          <div className="text-[var(--ocean-text)] text-center mb-2">{proj.review.review}</div>
+                          <div className="text-[var(--ocean-text)] text-center mb-2 w-full break-words">{proj.review.review}</div>
                           <button
                             type="button"
                             className="border border-[var(--ocean-light)] text-[var(--ocean-light)] rounded-lg px-6 py-2 mt-2 hover:bg-[var(--ocean-light)]/10 transition-colors text-base font-semibold"
