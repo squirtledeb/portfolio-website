@@ -63,7 +63,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-2xl text-[var(--ocean-text-secondary)] mb-8"
           >
-            Where creativity flows like the ocean
+            Reliability. Consistency. Results.
           </motion.p>
 
           <motion.div
