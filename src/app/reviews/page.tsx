@@ -159,7 +159,7 @@ export default function ReviewsPage() {
             Client Reviews
           </h1>
           <p className="mt-2 text-lg text-[var(--ocean-text-secondary)]">
-            See what people are saying about OceanTide Co.
+            See what people are saying about OceanTide.
           </p>
         </motion.div>
         
@@ -253,7 +253,7 @@ export default function ReviewsPage() {
       </div>
       <footer className="w-full flex justify-center items-center absolute bottom-4">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
-          © 2025 OceanTide Co. All rights reserved.
+          © 2025 OceanTide. All rights reserved.
         </span>
       </footer>
     </div>

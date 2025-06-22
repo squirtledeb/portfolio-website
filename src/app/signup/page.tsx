@@ -127,7 +127,7 @@ export default function SignupPage() {
       </motion.div>
       <footer className="w-full flex justify-center items-center mt-8 mb-2">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
-          © 2025 OceanTide Co. All rights reserved.
+          © 2025 OceanTide. All rights reserved.
         </span>
       </footer>
     </div>

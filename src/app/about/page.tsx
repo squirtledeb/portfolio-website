@@ -11,11 +11,11 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
       <div className="relative z-10 max-w-3xl mx-auto text-center flex-1">
-        <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] mb-6">About OceanTide Co.</h1>
+        <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] mb-6">About OceanTide</h1>
         <div className="bg-[var(--ocean-surface)] rounded-xl shadow-lg p-8 border border-[var(--ocean-light)]/10 mb-8">
           <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-2">About Me</h2>
           <p className="text-[var(--ocean-text)]">
-            Hey! I'm Naman, the creator behind OceanTide Co. — a freelance brand built on passion, purpose, and a whole lot of determination. I just completed the International Baccalaureate Diploma Programme (IBDP), one of the most rigorous academic programs in the world. Through it, I've learned how to handle pressure, meet deadlines, and think creatively — all skills I now bring into my freelance work.<br /><br />
+            Hey! I'm Naman, the creator behind OceanTide — a freelance brand built on passion, purpose, and a whole lot of determination. I just completed the International Baccalaureate Diploma Programme (IBDP), one of the most rigorous academic programs in the world. Through it, I've learned how to handle pressure, meet deadlines, and think creatively — all skills I now bring into my freelance work.<br /><br />
             Freelancing isn't just a side hustle for me — it's a stepping stone toward a bigger dream. I aim to pursue a degree in Marine Biology in Australia, and every project I take on helps bring me one step closer to that goal.
           </p>
         </div>
@@ -50,7 +50,7 @@ export default function AboutPage() {
       </div>
       <footer className="w-full flex justify-center items-center mt-8 mb-2">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
-          © 2025 OceanTide Co. All rights reserved.
+          © 2025 OceanTide. All rights reserved.
         </span>
       </footer>
     </div>
