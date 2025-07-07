@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/utils/mongodb';
 import { ObjectId } from 'mongodb';
 
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const { id } = params;
+    const db = await getDb();
+    const collection = db.collection('service_requests');
+    const request = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!request) {
+      return NextResponse.json({ success: false, error: 'Request not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, request });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;

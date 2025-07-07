@@ -5,9 +5,8 @@ import React from "react";
 export default function AboutPage() {
   return (
     <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
-      {/* Animated Background (same as homepage) */}
+      {/* Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
       <div className="relative z-10 max-w-3xl mx-auto text-center flex-1">

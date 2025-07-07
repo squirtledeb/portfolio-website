@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaMoneyCheckAlt } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaMoneyCheckAlt, FaChevronDown } from 'react-icons/fa';
 
 // Sample data (replace with real data later)
 const currentProjects = [
@@ -57,16 +57,32 @@ const getServiceName = (id: string) => {
   return service ? service.name : id;
 };
 
+const StatusChip = ({ status } : { status: string }) => {
+  const statusConfig: { [key: string]: { icon: React.ElementType, label: string, styles: string } } = {
+    Pending: { icon: FaHourglassHalf, label: 'Pending', styles: 'bg-yellow-900 text-yellow-300' },
+    Accepted: { icon: FaCheckCircle, label: 'In Progress', styles: 'bg-blue-900 text-blue-300' },
+    Completed: { icon: FaCheckCircle, label: 'Completed', styles: 'bg-green-900 text-green-300' },
+    Declined: { icon: FaTimesCircle, label: 'Declined', styles: 'bg-red-900 text-red-300' },
+  };
+
+  const config = statusConfig[status] || { icon: FaHourglassHalf, label: 'Archived', styles: 'bg-gray-700 text-gray-300' };
+  const Icon = config.icon;
+
+  return (
+    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gap-1.5 ${config.styles}`}>
+      <Icon />
+      {config.label}
+    </span>
+  );
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [serviceRequests, setServiceRequests] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [reviewRatings, setReviewRatings] = useState<Record<string, number>>({});
-  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
-  const [editReviewData, setEditReviewData] = useState<{ rating: number; review: string; title: string } | null>(null);
+  const [expandedRequestId, setExpandedRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     // Check authentication from localStorage
@@ -117,345 +133,128 @@ export default function DashboardPage() {
     return null; // Will redirect to login
   }
 
-  // Split requests by status
-  const pendingRequests = requests.filter((req: any) => req.status === 'Pending');
-  const acceptedRequests = requests.filter((req: any) => req.status === 'Accepted');
-  const declinedRequests = requests.filter((req: any) => req.status === 'Declined');
-  const completedRequests = requests.filter((req: any) => req.status === 'Completed');
-  // Show the most recent accepted request as the current project
-  const currentProject = acceptedRequests.length ? acceptedRequests[0] : null;
-  // Past projects: all completed, all declined, and all but the most recent accepted
-  const pastProjects = [
-    ...completedRequests,
-    ...declinedRequests,
-    ...acceptedRequests.slice(1)
-  ];
-
-  const progressValue = typeof currentProject?.progress === 'number' ? currentProject.progress : 0;
-
-  // Add onChange handler for editing review data
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: 'title' | 'review') => {
-    setEditReviewData(data => data ? { ...data, [field]: e.target.value } : data);
-  };
+  const allRequests = [...requests].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   return (
-    <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 relative overflow-hidden">
-      {/* Animated Background (same as homepage) */}
+    <div className="min-h-screen flex flex-col justify-between ocean-gradient pt-32 pb-0 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
-      <div className="relative z-10 max-w-5xl mx-auto space-y-12 flex-1">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+
+      <div className="relative z-10 max-w-7xl mx-auto w-full flex-1">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12 gap-4">
           <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] text-center md:text-left drop-shadow-lg">
             Welcome, <span className="capitalize">{username}</span>!
           </h1>
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => router.push('/dashboard/request-service')}
-            className="ocean-button text-lg px-8 py-3 md:ml-8 shadow-xl hover:shadow-[0_0_24px_0_#64FFDA80]"
+            className="ocean-button text-lg px-8 py-3 shadow-xl hover:shadow-[0_0_24px_0_#64FFDA80] flex-shrink-0"
           >
-            Buy New Service
+            Request a Service
           </motion.button>
         </div>
-        {/* Services Under Review */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4 flex items-center gap-2">
-            <FaHourglassHalf className="inline text-[var(--ocean-accent)]" /> Services Under Review
-          </h2>
-          <div className="bg-[var(--ocean-surface)] rounded-2xl shadow-lg p-6 border border-[var(--ocean-light)]/10">
-            {pendingRequests.length ? (
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[var(--ocean-text-secondary)]">
-                    <th className="text-center pb-2">Service</th>
-                    <th className="text-center pb-2">Project Name</th>
-                    <th className="text-center pb-2">Status</th>
-                    <th className="text-center pb-2">Requested</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingRequests.map((req: any, i: number) => (
-                    <tr key={req.id || i} className="border-t border-[var(--ocean-light)]/10 hover:bg-[var(--ocean-deep)]/40 transition">
-                      <td className="text-center py-2 font-medium">{getServiceName(req.serviceType)}</td>
-                      <td className="text-center py-2">{req.projectName}</td>
-                      <td className="text-center py-2">
-                        <div className="flex justify-center items-center h-full">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-900 text-yellow-300 gap-1">
-                            <FaHourglassHalf /> {req.status}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="text-center py-2 text-xs">{new Date(req.created_at).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="text-[var(--ocean-text-secondary)] italic">No service requests under review.</div>
-            )}
-          </div>
-        </section>
-        {/* Current Project */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-green-400 mb-4 flex items-center gap-2">
-            <FaCheckCircle className="inline" /> Current Project
-          </h2>
-          <div className="bg-[var(--ocean-surface)] rounded-2xl shadow-lg p-6 border border-[var(--ocean-light)]/10">
-            {currentProject ? (
-              <div className="bg-gradient-to-br from-[var(--ocean-surface)] to-[var(--ocean-deep)] rounded-3xl shadow-2xl p-8 border border-[var(--ocean-light)]/20 flex flex-col md:flex-row md:items-center md:justify-between gap-8 hover:scale-[1.01] transition-transform">
-                <div className="flex-1 space-y-2 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-3xl font-extrabold text-[var(--ocean-light)] truncate">{currentProject.projectName}</span>
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-[var(--ocean-accent)]/10 text-[var(--ocean-accent)] border border-[var(--ocean-accent)]/30 ml-2">
-                      {getServiceName(currentProject.serviceType)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <FaCheckCircle className="text-green-400" />
-                    <span className="text-green-400 font-bold text-lg">Accepted</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1 mt-4">
-                    <div className="text-xs text-[var(--ocean-text-secondary)]">
-                      <span className="font-semibold text-[var(--ocean-light)]">Requested:</span> {new Date(currentProject.created_at).toLocaleString()}
-                    </div>
-                    {currentProject.timeline && (
-                      <div className="text-xs text-[var(--ocean-text-secondary)]">
-                        <span className="font-semibold text-[var(--ocean-light)]">Timeline:</span> {currentProject.timeline}
-                      </div>
-                    )}
-                    <div className="text-xs text-[var(--ocean-text-secondary)] col-span-1 md:col-span-2 border-t border-[var(--ocean-light)]/10 pt-2 mt-2">
-                      <span className="font-semibold text-[var(--ocean-light)]">Description:</span> {currentProject.description}
-                    </div>
-                    {currentProject.budget && (
-                      <div className="text-xs text-[var(--ocean-text-secondary)]">
-                        <span className="font-semibold text-[var(--ocean-light)]">Budget:</span> {currentProject.budget}
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-6 w-full">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-xs font-semibold text-[var(--ocean-light)]">Progress</span>
-                      <span className="text-xs text-[var(--ocean-text-secondary)]">{progressValue}%</span>
-                    </div>
-                    <div className="w-full bg-[var(--ocean-deep)] rounded-full h-3">
-                      <div
-                        className="bg-[var(--ocean-light)] h-3 rounded-full transition-all duration-500 shadow-[0_0_8px_0_#64FFDA80]"
-                        style={{ width: `${progressValue}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 md:mt-0 md:ml-8 flex-shrink-0 flex items-start justify-end w-full md:w-auto">
-                  {(currentProject.invoiceUrls && currentProject.invoiceUrls.length > 0) ? (
-                    <div className="flex flex-col gap-2">
-                      {currentProject.invoiceUrls.map((url: string, idx: number) => (
-                        <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="ocean-button px-8 py-2 text-lg font-bold shadow-lg hover:shadow-[0_0_16px_0_#64FFDA80] focus:ring-2 focus:ring-[var(--ocean-light)]/40">Pay Invoice #{idx + 1}</a>
-                      ))}
-                    </div>
-                  ) : currentProject.invoiceUrl ? (
-                    <a href={currentProject.invoiceUrl} target="_blank" rel="noopener noreferrer" className="ocean-button px-8 py-2 text-lg font-bold shadow-lg hover:shadow-[0_0_16px_0_#64FFDA80] focus:ring-2 focus:ring-[var(--ocean-light)]/40">Pay Now</a>
-                  ) : (
-                    <button className="ocean-button px-8 py-2 text-lg font-bold shadow-lg opacity-60 cursor-not-allowed" disabled title="Your invoice will be available soon.">Pay Now</button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="text-[var(--ocean-text-secondary)] italic">No current project. Once a request is accepted, it will appear here.</div>
-            )}
-          </div>
-        </section>
-        {/* Past Projects */}
-        <section className="mb-10">
-          <h2 className="text-2xl font-semibold text-[var(--ocean-light)] mb-4 flex items-center gap-2">
-            <FaTimesCircle className="inline text-red-400" /> Past Projects
-          </h2>
-          <div className="bg-[var(--ocean-surface)] rounded-2xl shadow-lg p-6 border border-[var(--ocean-light)]/10">
-            {pastProjects.length ? (
+
+        <section>
+          <h2 className="text-3xl font-bold text-[var(--ocean-light)] mb-6">All My Requests</h2>
               <div className="space-y-4">
-                {pastProjects.map((proj: any, idx: number) => (
-                  <div key={proj.id || idx} className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[var(--ocean-light)]/10 pb-4 last:border-b-0 last:pb-0">
+            {allRequests.length > 0 ? (
+              allRequests.map((req) => (
+                <motion.div
+                  key={req.id}
+                  layout
+                  className="bg-[var(--ocean-surface)] rounded-xl shadow-md border border-[var(--ocean-light)]/10 overflow-hidden"
+                >
+                  <motion.div
+                    layout
+                    onClick={() => setExpandedRequestId(expandedRequestId === req.id ? null : req.id)}
+                    className="p-4 flex justify-between items-center cursor-pointer hover:bg-[var(--ocean-deep)]/40 transition-colors"
+                  >
                     <div>
-                      <div className="text-lg font-bold text-[var(--ocean-light)] mb-1">{proj.projectName}</div>
-                      <div className="text-[var(--ocean-text-secondary)] mb-1">Service: {getServiceName(proj.serviceType)}</div>
-                      <div className={proj.status === 'Declined' ? 'text-red-400 font-semibold flex items-center gap-1' : 'text-green-400 font-semibold flex items-center gap-1'}>
-                        {proj.status === 'Declined' ? <FaTimesCircle /> : <FaCheckCircle />} {proj.status}
+                      <h4 className="font-bold text-lg text-[var(--ocean-light)]">{req.projectName}</h4>
+                      <p className="text-sm text-[var(--ocean-accent)] font-semibold">{getServiceName(req.serviceType)}</p>
                       </div>
-                      <div className="text-xs text-[var(--ocean-text-secondary)]">Requested: {new Date(proj.created_at).toLocaleString()}</div>
-                      <div className="text-xs text-[var(--ocean-text-secondary)]">Description: {proj.description}</div>
-                      {proj.timeline && <div className="text-xs text-[var(--ocean-text-secondary)]">Timeline: {proj.timeline}</div>}
-                      {proj.budget && <div className="text-xs text-[var(--ocean-text-secondary)]">Budget: {proj.budget}</div>}
+                    <div className="flex items-center gap-4">
+                      <StatusChip status={req.status} />
+                      <motion.div 
+                        animate={{ rotate: expandedRequestId === req.id ? 180 : 0 }} 
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="text-[var(--ocean-light)]"
+                      >
+                        <FaChevronDown />
+                      </motion.div>
                     </div>
-                    {proj.status === 'Completed' && !proj.reviewed && (
-                      <form className="mt-4 bg-[var(--ocean-surface)]/80 p-4 rounded-xl flex flex-col gap-2" onSubmit={async (e) => {
-                        e.preventDefault();
-                        const form = e.target as HTMLFormElement;
-                        const rating = reviewRatings[proj._id] || 0;
-                        const review = (form.elements.namedItem('review') as HTMLInputElement).value.trim();
-                        const title = (form.elements.namedItem('title') as HTMLInputElement).value.trim();
-                        if (!rating || rating < 1 || rating > 5) return alert('Please select a rating (1-5 stars).');
-                        if (review.length < 10) return alert('Review must be at least 10 characters.');
-                        if (!title) return alert('Please enter a title.');
-                        // Post review to API
-                        const res = await fetch('/api/reviews', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            username,
-                            projectName: proj.projectName,
-                            serviceType: proj.serviceType,
-                            rating,
-                            review,
-                            title,
-                            avatar: `/api/avatar/${username.charAt(0).toUpperCase()}`
-                          })
-                        });
-                        if (res.ok) {
-                          // Mark project as reviewed in backend and save the review to the project
-                          await fetch(`/api/service-requests/${proj._id}`, {
-                            method: 'PATCH',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                              reviewed: true,
-                              review: { rating, review, title } // Save review to project
-                            })
-                          });
-                          window.location.reload();
-                        } else {
-                          alert('Failed to submit review.');
-                        }
-                      }}>
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 rounded-full bg-[var(--ocean-accent)] flex items-center justify-center text-xl font-bold text-white">
-                            {username.charAt(0).toUpperCase()}
-                          </div>
-                          <span className="text-[var(--ocean-light)] font-semibold">Leave a Review</span>
+                  </motion.div>
+
+                  <AnimatePresence>
+                    {expandedRequestId === req.id && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
+                        className="p-6 border-t border-[var(--ocean-light)]/10"
+                      >
+                        {/* Detailed content based on status */}
+                        <p className="text-sm text-[var(--ocean-text-secondary)] mb-4">{req.description}</p>
+                        
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm mb-4">
+                          <div><span className="font-semibold text-[var(--ocean-light)]">Timeline:</span> {req.timeline || "N/A"}</div>
+                          <div><span className="font-semibold text-[var(--ocean-light)]">Budget:</span> {req.budget ? `$${req.budget}` : "N/A"}</div>
+                          <div className="col-span-2 text-xs text-gray-400">Requested on {new Date(req.created_at).toLocaleDateString()}</div>
                         </div>
-                        <div className="flex gap-2 my-2">
-                          {[1,2,3,4,5].map(star => (
-                            <button
-                              type="button"
-                              key={star}
-                              onClick={() => setReviewRatings(r => ({ ...r, [proj._id]: star }))}
-                              className="focus:outline-none"
-                              aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
-                            >
-                              <span className={`text-2xl ${reviewRatings[proj._id] >= star ? 'text-yellow-400' : 'text-gray-500'}`}>★</span>
-                            </button>
-                          ))}
-                        </div>
-                        <input type="hidden" name="rating" value={reviewRatings[proj._id] || 0} />
-                        <input name="review" className="w-full px-3 py-2 rounded-xl bg-[rgba(10,25,47,0.85)] text-[var(--ocean-text)] border-2 border-[var(--ocean-light)]/20 focus:border-[var(--ocean-light)] focus:ring-2 focus:ring-[var(--ocean-light)]/40 transition-all outline-none font-medium shadow-md placeholder:text-[var(--ocean-text-secondary)] text-sm" placeholder="Your review here..." minLength={10} required />
-                        <input name="title" className="w-full px-3 py-2 rounded-xl bg-[rgba(10,25,47,0.85)] text-[var(--ocean-text)] border-2 border-[var(--ocean-light)]/20 focus:border-[var(--ocean-light)] focus:ring-2 focus:ring-[var(--ocean-light)]/40 transition-all outline-none font-medium shadow-md placeholder:text-[var(--ocean-text-secondary)] text-sm" placeholder="Title: eg: Streamer" required />
-                        <button type="submit" className="ocean-button px-6 py-2 mt-2">Submit Review</button>
-                      </form>
-                    )}
-                    {proj.status === 'Completed' && proj.reviewed && proj.review && (
-                      editingReviewId === proj._id && editReviewData ? (
-                        // EDITING VIEW
-                        <form 
-                          className="mt-4 bg-[var(--ocean-surface)]/90 p-6 rounded-xl flex flex-col items-center gap-4 shadow-md w-full"
-                          onSubmit={async (e) => {
-                            e.preventDefault();
-                            const { rating, review, title } = editReviewData;
-                            if (!rating || rating < 1 || rating > 5) return alert('Please select a rating (1-5 stars).');
-                            if (review.length < 10) return alert('Review must be at least 10 characters.');
-                            if (!title) return alert('Please enter a title.');
-                            await fetch(`/api/service-requests/${proj._id}`, {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ review: { rating, review, title } })
-                            });
-                            await fetch('/api/reviews', {
-                              method: 'PATCH',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ username, projectName: proj.projectName, rating, review, title })
-                            });
-                            setEditingReviewId(null);
-                            setEditReviewData(null);
-                            window.location.reload();
-                          }}
-                        >
-                          <div className="flex flex-col items-center gap-2 w-full">
-                            <div className="w-14 h-14 rounded-full bg-[var(--ocean-accent)] flex items-center justify-center text-2xl font-bold text-white ring-4 ring-[var(--ocean-accent)]/30 mb-1">
-                              {username.charAt(0).toUpperCase()}
+
+                        {req.status === 'Accepted' && (
+                          <>
+                            <div className="w-full mt-4">
+                              <div className="flex justify-between mb-1">
+                                <span className="text-sm font-semibold text-[var(--ocean-light)]">Progress</span>
+                                <span className="text-sm text-[var(--ocean-accent)] font-bold">{req.progress || 0}%</span>
                             </div>
-                            <span className="text-[var(--ocean-light)] font-bold text-lg">Edit Your Review</span>
+                              <div className="w-full bg-[var(--ocean-deep)] rounded-full h-3.5 border border-[var(--ocean-light)]/10">
+                                <div
+                                  className="bg-gradient-to-r from-[var(--ocean-accent)] to-[#64ffda80] h-full rounded-full transition-all duration-500 shadow-[0_0_10px_0_#64FFDA80]"
+                                  style={{ width: `${req.progress || 0}%` }}
+                                />
                           </div>
-                          <div className="flex gap-1 my-1">
-                            {[1,2,3,4,5].map(star => (
-                              <button
-                                type="button"
-                                key={star}
-                                onClick={() => setEditReviewData(data => data ? { ...data, rating: star } : data)}
-                                className="focus:outline-none"
-                                aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
-                              >
-                                <span className={`text-2xl ${editReviewData.rating >= star ? 'text-yellow-400' : 'text-gray-500'}`}>★</span>
-                              </button>
-                            ))}
-                          </div>
-                          <input 
-                            name="title" 
-                            value={editReviewData.title} 
-                            onChange={(e) => setEditReviewData(data => data ? { ...data, title: e.target.value } : data)}
-                            className="w-full text-center px-4 py-3 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-light)] text-base font-bold border-2 border-[var(--ocean-light)]/20 focus:border-[var(--ocean-light)] focus:ring-2 focus:ring-[var(--ocean-light)]/40 transition-all outline-none shadow-md" 
-                            placeholder="Title: eg: Streamer"
-                            required 
-                          />
-                          <textarea 
-                            name="review" 
-                            value={editReviewData.review} 
-                            onChange={(e) => setEditReviewData(data => data ? { ...data, review: e.target.value } : data)}
-                            className="w-full text-center px-4 py-3 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-text)] border-2 border-[var(--ocean-light)]/20 focus:border-[var(--ocean-light)] focus:ring-2 focus:ring-[var(--ocean-light)]/40 transition-all outline-none shadow-md" 
-                            rows={3} 
-                            minLength={10} 
-                            required 
-                          />
-                          <div className="flex gap-4 w-full mt-2">
-                            <button type="submit" className="flex-1 ocean-button py-3 text-lg">Save Changes</button>
-                            <button type="button" className="flex-1 ocean-button py-3 text-lg bg-[var(--ocean-accent)] text-white" onClick={() => { setEditingReviewId(null); setEditReviewData(null); }}>Cancel</button>
-                          </div>
-                        </form>
-                      ) : (
-                        // STATIC DISPLAY VIEW
-                        <div className="mt-4 bg-[var(--ocean-surface)]/80 p-6 rounded-xl flex flex-col items-center gap-4 shadow-md">
-                          <div className="flex flex-col items-center gap-2 w-full">
-                            <div className="w-14 h-14 rounded-full bg-[var(--ocean-accent)] flex items-center justify-center text-2xl font-bold text-white ring-4 ring-[var(--ocean-accent)]/30 mb-1">
-                              {username.charAt(0).toUpperCase()}
                             </div>
-                            <span className="text-[var(--ocean-light)] font-bold text-lg">Your Review</span>
+                            {(req.invoiceUrls && req.invoiceUrls.length > 0) && (
+                              <div className="flex justify-end mt-4">
+                                <motion.a
+                                  href={req.invoiceUrls[0]}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="ocean-button-secondary flex items-center gap-2"
+                                  whileHover={{ scale: 1.05 }}
+                                >
+                                  <FaMoneyCheckAlt /> View Invoice
+                                </motion.a>
                           </div>
-                          <div className="flex gap-1 my-1">
-                            {[1,2,3,4,5].map(star => (
-                              <span key={star} className={`text-2xl ${proj.review.rating >= star ? 'text-yellow-400' : 'text-gray-500'}`}>★</span>
-                            ))}
+                            )}
+                          </>
+                        )}
+
+                        {/* Placeholder for review form */}
+                        {req.status === 'Completed' && (
+                           <div className="mt-4 bg-[var(--ocean-surface)]/80 p-4 rounded-xl">
+                            <p className="text-center text-[var(--ocean-light)]">Review section coming soon.</p>
                           </div>
-                          <div className="font-bold text-[var(--ocean-light)] text-base mb-1">{proj.review.title}</div>
-                          <div className="text-[var(--ocean-text)] text-center mb-2 w-full break-words">{proj.review.review}</div>
-                          <button
-                            type="button"
-                            className="border border-[var(--ocean-light)] text-[var(--ocean-light)] rounded-lg px-6 py-2 mt-2 hover:bg-[var(--ocean-light)]/10 transition-colors text-base font-semibold"
-                            onClick={() => {
-                              setEditingReviewId(proj._id);
-                              setEditReviewData({ rating: proj.review.rating, review: proj.review.review, title: proj.review.title });
-                            }}
-                          >
-                            Edit Review
-                          </button>
-                        </div>
-                      )
+                        )}
+                      </motion.div>
                     )}
-                  </div>
-                ))}
-              </div>
+                  </AnimatePresence>
+                </motion.div>
+              ))
             ) : (
-              <div className="text-[var(--ocean-text-secondary)] italic">No past projects yet.</div>
+              <div className="text-center py-10 bg-[var(--ocean-surface)] rounded-xl border border-[var(--ocean-light)]/10">
+                <p className="text-[var(--ocean-text-secondary)]">You have no service requests yet.</p>
+              </div>
             )}
           </div>
         </section>
       </div>
-      <footer className="w-full flex justify-center items-center mt-8 mb-2">
+      <footer className="w-full flex justify-center items-center">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">
           © 2025 OceanTide. All rights reserved.
         </span>

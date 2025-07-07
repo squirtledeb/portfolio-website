@@ -61,9 +61,8 @@ export default function ServicesPage() {
 
   return (
     <div className="min-h-screen ocean-gradient pt-28 pb-20 px-4 relative">
-      {/* Background */}
+      {/* Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
 

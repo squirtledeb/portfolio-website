@@ -70,82 +70,46 @@ export default function ContactPage() {
     setStatus('idle');
   }
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        ease: "easeOut",
-        duration: 0.5,
-      },
-    },
-  };
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center ocean-gradient p-4 relative overflow-hidden">
       <Toaster position="bottom-center" />
       {/* Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
 
-      <motion.div 
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center"
-      >
+      <div className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
         {/* Left Side: Info */}
         <div className="text-center md:text-left">
-          <motion.div variants={itemVariants} className="inline-block p-4 bg-[var(--ocean-surface)] border border-[var(--ocean-light)]/20 rounded-full mb-4">
+          <div className="inline-block p-4 bg-[var(--ocean-surface)] border border-[var(--ocean-light)]/20 rounded-full mb-4">
             <FiMessageSquare className="text-[var(--ocean-light)] text-3xl" />
-          </motion.div>
-          <motion.h1 variants={itemVariants} className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] mb-4">
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-[var(--ocean-light)] mb-4">
             Get in Touch
-          </motion.h1>
-          <motion.p variants={itemVariants} className="text-lg text-[var(--ocean-text-secondary)] mb-8">
+          </h1>
+          <p className="text-lg text-[var(--ocean-text-secondary)] mb-8">
             Have a project in mind, a question, or just want to say hello? Drop a message. I'll get back to you as soon as possible.
-          </motion.p>
+          </p>
           <div className="space-y-4">
-            <motion.a href="mailto:freelancer.oceantideco@gmail.com" variants={itemVariants} className="flex items-center justify-center md:justify-start gap-4 text-[var(--ocean-text)] hover:text-[var(--ocean-light)] transition-colors">
+            <a href="mailto:freelancer.oceantideco@gmail.com" className="flex items-center justify-center md:justify-start gap-4 text-[var(--ocean-text)] hover:text-[var(--ocean-light)] transition-colors">
               <FiMail className="text-xl text-[var(--ocean-light)]" />
               <span>freelancer.oceantideco@gmail.com</span>
-            </motion.a>
-            <motion.button 
+            </a>
+            <button 
               onClick={handleDiscordCopy}
-              variants={itemVariants} 
               className="flex items-center justify-center md:justify-start gap-4 text-[var(--ocean-text)] hover:text-[var(--ocean-light)] transition-colors w-full text-left"
             >
               <FaDiscord className="text-xl text-[var(--ocean-light)]" />
               <span>squirtledeb</span>
-            </motion.button>
+            </button>
           </div>
         </div>
 
         {/* Right Side: Form */}
-        <motion.div variants={itemVariants} className="bg-[var(--ocean-surface)] rounded-xl shadow-lg p-8 border border-[var(--ocean-light)]/10 relative overflow-hidden min-h-[440px] flex items-center justify-center">
+        <div className="bg-[var(--ocean-surface)] rounded-xl shadow-lg p-8 border border-[var(--ocean-light)]/10 relative overflow-hidden min-h-[440px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             {status === 'idle' || status === 'submitting' ? (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
-                className="w-full"
-              >
+              <div key="form" className="w-full">
                 <form onSubmit={handleSubmit} className="space-y-6 text-left">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -166,18 +130,16 @@ export default function ContactPage() {
                     <textarea id="message" name="message" rows={4} value={formData.message} onChange={handleChange} className="w-full px-4 py-2 rounded-lg bg-[var(--ocean-deep)] text-[var(--ocean-text)] border border-[var(--ocean-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--ocean-light)] transition-all" required></textarea>
                   </div>
                   <div>
-                    <motion.button 
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                    <button 
                       type="submit" 
                       className="ocean-button w-full"
                       disabled={status === 'submitting'}
                     >
                       {status === 'submitting' ? 'Sending...' : 'Send Message'}
-                    </motion.button>
+                    </button>
                   </div>
                 </form>
-              </motion.div>
+              </div>
             ) : status === 'success' ? (
               <motion.div 
                 key="success"
@@ -214,8 +176,8 @@ export default function ContactPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       <footer className="w-full flex justify-center items-center absolute bottom-4">
         <span className="text-white text-xs md:text-sm drop-shadow font-medium bg-[#0099ff]/80 px-4 py-2 rounded-full">

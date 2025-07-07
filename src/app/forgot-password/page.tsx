@@ -74,9 +74,8 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex flex-col ocean-gradient pt-32 pb-16 px-4 items-center justify-center relative overflow-hidden">
-      {/* Animated Background (same as homepage) */}
+      {/* Animated Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
       </div>
       <div className="relative z-10 w-full max-w-md bg-[var(--ocean-surface)] rounded-2xl shadow-2xl p-10 border border-[var(--ocean-light)]/10 flex flex-col items-center flex-1">

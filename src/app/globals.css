@@ -65,3 +65,17 @@
 .group:focus .flip-inner {
   transform: rotateY(180deg);
 } 
+
+.custom-number-input::-webkit-inner-spin-button,
+.custom-number-input::-webkit-outer-spin-button {
+  right: 0.5rem;
+  position: absolute;
+}
+.custom-number-input {
+  position: relative;
+}
+
+/* For Firefox */
+.custom-number-input[type=number] {
+  -moz-appearance: textfield;
+} 

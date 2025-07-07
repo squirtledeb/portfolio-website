@@ -42,7 +42,6 @@ export default function Home() {
       >
         {/* Animated Background */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('/wave-pattern.svg')] opacity-10 animate-wave-pulse" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[var(--ocean-deep)]" />
         </div>
 
